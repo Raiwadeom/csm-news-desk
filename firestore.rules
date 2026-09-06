@@ -1,0 +1,44 @@
+rules_version = '2';
+
+// Admin-only archive: anyone who can sign in is an administrator, because
+// accounts are created by hand in the Firebase console (there is no sign-up
+// screen in the app). Nothing is readable without signing in.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Newspaper cuttings
+    match /posts/{postId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && request.resource.data.imageUrl is string
+                    && request.resource.data.imageUrl.size() > 0;
+      allow update, delete: if signedIn();
+    }
+
+    // Collections / boards
+    match /boards/{boardId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 60;
+      allow update, delete: if signedIn();
+    }
+
+    // Admin profiles: every admin can see who the others are, but only the
+    // owner may edit their own name, role and photo.
+    match /admins/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
