@@ -29,17 +29,26 @@ export function useDismissable(open, onClose) {
 
 /* ── dropdown ───────────────────────────────────────────────────── */
 
-export function Dropdown({ button, children, align = "right", className = "" }) {
+export function Dropdown({
+  button,
+  children,
+  align = "right",
+  side = "down",
+  className = "",
+}) {
   const [open, setOpen] = useState(false);
   const ref = useDismissable(open, () => setOpen(false));
+
+  const alignClass =
+    align === "right" ? "right-0" : align === "center" ? "left-1/2 -translate-x-1/2" : "left-0";
 
   return (
     <div ref={ref} className={`relative ${className}`}>
       {button({ open, toggle: () => setOpen((v) => !v), close: () => setOpen(false) })}
       {open && (
         <div
-          className={`animate-pop absolute z-50 mt-2 min-w-52 overflow-hidden rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black/8 ${
-            align === "right" ? "right-0" : "left-0"
+          className={`animate-pop absolute z-50 min-w-52 overflow-hidden rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black/8 ${alignClass} ${
+            side === "up" ? "bottom-full mb-2" : "top-full mt-2"
           }`}
           onClick={() => setOpen(false)}
         >

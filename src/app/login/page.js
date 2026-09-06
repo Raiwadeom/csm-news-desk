@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { COLLEGE, isFirebaseConfigured } from "@/lib/config";
-import { Spinner, IconAlert, IconSparkle, IconCheck } from "@/components/Icons";
+import { Spinner, IconAlert, IconCheck } from "@/components/Icons";
 
 const FIREBASE_ERRORS = {
   "auth/invalid-credential": "Incorrect email or password.",
@@ -110,20 +110,12 @@ export default function LoginPage() {
             is where that record is kept — a permanent, searchable archive of the
             institution as the press has seen it, year after year.
           </p>
-
-          <figure className="mt-7 hidden border-l-2 border-white/30 pl-4 lg:block">
-            <blockquote className="text-lg font-semibold leading-snug">
-              बहुजन हिताय · बहुजन सुखाय
-            </blockquote>
-            <figcaption className="mt-1.5 flex items-center gap-2 text-xs text-white/65">
-              <IconSparkle className="h-3.5 w-3.5" />
-              {COLLEGE.trust}, {COLLEGE.city}
-            </figcaption>
-          </figure>
         </div>
 
         <p className="relative mt-8 hidden text-xs text-white/60 lg:block">
           Administrator access only · {new Date().getFullYear()}
+          <br />
+          Built by Raiwade Omrushikesh
         </p>
       </section>
 
@@ -229,6 +221,8 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-xs text-ink-500 lg:hidden">
             {COLLEGE.name}, {COLLEGE.city}
+            <br />
+            Built by Raiwade Omrushikesh
           </p>
         </div>
       </section>

@@ -203,7 +203,8 @@ export default function AppShell({ children }) {
           })}
 
           <Dropdown
-            align="right"
+            align="center"
+            side="up"
             className="flex-1"
             button={({ toggle }) => (
               <button
