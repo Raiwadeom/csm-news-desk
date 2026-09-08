@@ -1,8 +1,14 @@
 # News Desk — Chhatrapati Shivajiraje Mahavidyalaya, Udgir
 
-A Pinterest-style archive of the college's newspaper cuttings. Administrators
-sign in, upload clippings, sort them into collections (Shivjayanti, Sports,
-Events…) and download any cutting to a phone or computer in one tap.
+A Pinterest-style archive of the college's newspaper cuttings.
+
+- **Anyone** who visits the site can browse the full archive, open a cutting
+  full-screen and download it — no sign-in needed.
+- **Administrators** sign in separately to upload clippings, sort them into
+  collections (Shivjayanti, Sports, Events…), set the publication date on a
+  cutting, and delete anything that shouldn't be there.
+
+Live: <https://csm-news-desk.vercel.app>
 
 ---
 
@@ -13,33 +19,20 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:3000** (the terminal prints the exact port if 3000 is
-busy). To open it on your phone, use the **Network** URL the terminal prints —
-the phone must be on the same Wi-Fi.
+Open **http://localhost:3001** (the terminal prints the exact port if it's
+busy — see `package.json`). To open it on your phone, use the **Network**
+URL the terminal prints — the phone must be on the same Wi-Fi.
 
-### Demo mode
-
-With no keys configured the app runs entirely in the browser (IndexedDB), so
-every screen is usable immediately.
-
-| | |
-|---|---|
-| Email | `admin@csmudgir.edu.in` |
-| Password | `admin123` |
-
-"Load sample cuttings" on the empty feed fills the archive with placeholder
-clippings and five collections. "Reset demo data" on the profile page clears
-everything again. Demo data lives in one browser only — it is not shared
-between devices.
+The app needs Firebase and Cloudinary keys to run at all (see **Going live**
+below) — copy `.env.example` to `.env.local` and fill it in first.
 
 ---
 
 ## Going live
 
 Copy `.env.example` to `.env.local`, fill it in, and restart `npm run dev`.
-The app switches backends automatically — no code changes.
 
-### 1. Firebase (sign-in + database)
+### 1. Firebase (public read + admin sign-in + database)
 
 1. Create a project at <https://console.firebase.google.com>.
 2. **Build → Authentication → Sign-in method → Email/Password → Enable.**
@@ -59,7 +52,8 @@ The app switches backends automatically — no code changes.
    ```
 
 6. Paste the contents of `firestore.rules` into **Firestore → Rules → Publish**.
-   Without this step the database is open to the internet.
+   Without this step the database is closed to everyone, including the
+   public feed.
 
 ### 2. Cloudinary (image storage)
 
@@ -87,7 +81,8 @@ serverless function.
 2. <https://vercel.com/new> → import the repository (Next.js is detected).
 3. **Settings → Environment Variables**: add all nine keys from `.env.local`.
 4. Deploy. Add the Vercel domain under **Firebase → Authentication → Settings →
-   Authorised domains**, otherwise sign-in is blocked on the live site.
+   Authorised domains**, otherwise admin sign-in is blocked on the live site
+   (the public feed works either way — it needs no auth).
 
 ---
 
@@ -96,33 +91,45 @@ serverless function.
 ```
 src/
   app/
-    login/                  admin sign-in + password reset
-    (app)/                  everything behind the sign-in wall
-      feed/                 the masonry feed, with collection filters
-      collections/          boards grid, and one page per board
-      profile/              name, designation, photo, account
-    api/cloudinary/         sign uploads · delete images
-  components/               grid, pin card, lightbox, modals, shell
+    page.js                  the PUBLIC feed - no sign-in required
+    login/                   admin sign-in + password reset
+    (app)/                   everything behind the sign-in wall
+      feed/                  the admin masonry feed, with collection + date filters
+      collections/           boards grid, and one page per board
+      profile/               name, designation, photo, account
+    api/cloudinary/          sign uploads · delete images
+  components/
+    PublicHeader.js           header for the public feed (search + admin link)
+    AppShell.js                header + nav for the admin area
+    PinCard.js / Lightbox.js   shared by both; a `readOnly` prop hides
+                                Save/Delete so the same UI serves the public
+    MasonryGrid.js / PinBrowser.js   grid + full-screen view, also `readOnly`-aware
   lib/
-    config.js               decides demo mode vs live mode
-    store.js                one data API over Firestore *or* IndexedDB
-    auth.js                 session, profile, password reset
-    upload.js               signed browser → Cloudinary upload
-    images.js               thumbnails, downloads, compression
-    newsprint.js            draws the placeholder clippings
+    config.js                required Firebase/Cloudinary keys, demo-mode has been retired
+    store.js                 the data API over Firestore
+    auth.js                  session, profile, password reset
+    upload.js                signed browser → Cloudinary upload
+    images.js                thumbnails, downloads, compression
+    dates.js                 formatting/parsing for a cutting's publication date
 ```
 
 ### Data model (Firestore)
 
 | Collection | Fields |
 |---|---|
-| `posts/{id}` | `title`, `note`, `source`, `imageUrl`, `publicId`, `width`, `height`, `boardIds[]`, `ownerUid`, `createdAt` |
+| `posts/{id}` | `title`, `note`, `source`, `newsDate`, `imageUrl`, `publicId`, `width`, `height`, `boardIds[]`, `ownerUid`, `ownerName`, `createdAt` |
 | `boards/{id}` | `name`, `description`, `ownerUid`, `createdAt` |
 | `admins/{uid}` | `name`, `role`, `email`, `photoUrl`, `photoPublicId` |
 
-A cutting is tagged with `boardIds`, it is not moved into a board. That is why
-a pin uploaded straight into a collection still appears in the main feed, and
-why deleting a collection never deletes the cuttings inside it.
+- `newsDate` is the date the story ran in the paper (`"YYYY-MM-DD"`, set by
+  the admin at upload time and editable afterwards from the full-screen
+  view) — different from `createdAt`, which is when it was uploaded.
+- A cutting is tagged with `boardIds`, it is not moved into a board. That is
+  why a pin uploaded straight into a collection still appears in the main
+  feed, and why deleting a collection never deletes the cuttings inside it.
+- `posts` is publicly readable (see `firestore.rules`); `boards` and
+  `admins` are readable only by signed-in administrators. All writes to
+  every collection require sign-in.
 
 ---
 
@@ -133,5 +140,4 @@ why deleting a collection never deletes the cuttings inside it.
   download.
 * **Adding another administrator:** Firebase console → Authentication → Add
   user. They set their own name, designation and photo on first sign-in.
-* **Forgotten password:** the login screen emails a reset link (needs Firebase;
-  in demo mode the password is fixed).
+* **Forgotten password:** the login screen emails a reset link.

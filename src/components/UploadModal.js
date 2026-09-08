@@ -9,6 +9,7 @@ import { useApp } from "@/lib/app-context";
 import { addPost, createBoard } from "@/lib/store";
 import { uploadImage, validateImageFile } from "@/lib/upload";
 import { isCloudinaryConfigured } from "@/lib/config";
+import { todayInputValue } from "@/lib/dates";
 
 const NEW_BOARD = "__new__";
 
@@ -29,6 +30,7 @@ export default function UploadModal() {
   const [boardId, setBoardId] = useState("");
   const [newBoardName, setNewBoardName] = useState("");
   const [source, setSource] = useState("");
+  const [newsDate, setNewsDate] = useState(todayInputValue());
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef(null);
@@ -42,6 +44,7 @@ export default function UploadModal() {
     setBoardId(uploadState.boardId || "");
     setNewBoardName("");
     setSource("");
+    setNewsDate(todayInputValue());
     setBusy(false);
   }, [open, uploadState.boardId]);
 
@@ -111,6 +114,7 @@ export default function UploadModal() {
           await addPost({
             title: item.title || titleFromFile(item.file.name),
             source: source.trim(),
+            newsDate: newsDate || null,
             imageUrl: uploaded.imageUrl,
             publicId: uploaded.publicId,
             width: uploaded.width,
@@ -292,6 +296,21 @@ export default function UploadModal() {
             value={source}
             onChange={(e) => setSource(e.target.value)}
             placeholder="Lokmat, Sakal, Divya Marathi…"
+            disabled={busy}
+            className={inputClass}
+          />
+        </Field>
+
+        <Field
+          label="Date of publication"
+          htmlFor="newsDate"
+          hint="The date the story ran in the paper — shown on the cutting to everyone."
+        >
+          <input
+            id="newsDate"
+            type="date"
+            value={newsDate}
+            onChange={(e) => setNewsDate(e.target.value)}
             disabled={busy}
             className={inputClass}
           />

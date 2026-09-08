@@ -57,6 +57,7 @@ export async function addPost(data) {
     ownerUid: data.ownerUid || null,
     ownerName: data.ownerName || "",
     source: data.source || "",
+    newsDate: data.newsDate || null,
     createdAt: serverTimestamp(),
   });
   return ref.id;

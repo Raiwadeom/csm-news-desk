@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import SaveToBoardMenu from "./SaveToBoardMenu";
 import { Button } from "./ui";
-import { IconClose, IconDownload, IconTrash, IconFolder, Spinner } from "./Icons";
+import { IconClose, IconDownload, IconTrash, IconFolder, IconEdit, IconCheck, Spinner } from "./Icons";
 import { useToast } from "./Toast";
 import { largeUrl, downloadImage } from "@/lib/images";
+import { formatNewsDate } from "@/lib/dates";
+import { updatePost } from "@/lib/store";
 
 function formatDate(value) {
   if (!value) return "";
@@ -18,9 +20,16 @@ function formatDate(value) {
   });
 }
 
-export default function Lightbox({ post, boardsById, onClose, onDelete }) {
+export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly = false }) {
   const { toast, error: toastError } = useToast();
   const [saving, setSaving] = useState(false);
+  const [editingDate, setEditingDate] = useState(false);
+  const [dateDraft, setDateDraft] = useState("");
+  const [savingDate, setSavingDate] = useState(false);
+
+  useEffect(() => {
+    setEditingDate(false);
+  }, [post?.id]);
 
   useEffect(() => {
     if (!post) return;
@@ -47,6 +56,23 @@ export default function Lightbox({ post, boardsById, onClose, onDelete }) {
     setSaving(false);
     if (ok) toast("Saved to your device.");
     else toastError("Opened in a new tab — long-press or right-click to save.");
+  }
+
+  function startEditDate() {
+    setDateDraft(post.newsDate || "");
+    setEditingDate(true);
+  }
+
+  async function handleSaveDate() {
+    setSavingDate(true);
+    try {
+      await updatePost(post.id, { newsDate: dateDraft || null });
+      toast("Publication date updated.");
+      setEditingDate(false);
+    } catch (err) {
+      toastError(err.message || "Could not update the date.");
+    }
+    setSavingDate(false);
   }
 
   return (
@@ -94,6 +120,54 @@ export default function Lightbox({ post, boardsById, onClose, onDelete }) {
               {post.source && formatDate(post.createdAt) && <span>·</span>}
               {formatDate(post.createdAt) && <span>Added {formatDate(post.createdAt)}</span>}
             </p>
+
+            {editingDate ? (
+              <div className="mt-2 flex items-center gap-1.5">
+                <input
+                  type="date"
+                  value={dateDraft}
+                  onChange={(e) => setDateDraft(e.target.value)}
+                  autoFocus
+                  className="rounded-lg border border-black/12 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveDate}
+                  disabled={savingDate}
+                  aria-label="Save date"
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-60"
+                >
+                  {savingDate ? <Spinner className="h-4 w-4" /> : <IconCheck className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingDate(false)}
+                  disabled={savingDate}
+                  aria-label="Cancel"
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-500 transition hover:bg-black/6"
+                >
+                  <IconClose className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              (post.newsDate || !readOnly) && (
+                <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-ink-700">
+                  {post.newsDate
+                    ? `Published ${formatNewsDate(post.newsDate)}`
+                    : "No publication date set"}
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={startEditDate}
+                      aria-label="Edit publication date"
+                      className="rounded-full p-1 text-ink-500 transition hover:bg-black/6 hover:text-ink-900"
+                    >
+                      <IconEdit className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </p>
+              )
+            )}
           </div>
 
           {boardNames.length > 0 && (
@@ -110,24 +184,26 @@ export default function Lightbox({ post, boardsById, onClose, onDelete }) {
             </div>
           )}
 
-          <div className="mt-auto space-y-2.5">
-            <div className="flex items-center gap-2">
-              <SaveToBoardMenu post={post} variant="soft" align="left" />
-              <Button onClick={handleDownload} className="flex-1" disabled={saving}>
-                {saving ? <Spinner className="h-4 w-4" /> : <IconDownload className="h-4.5 w-4.5" />}
-                Download
-              </Button>
-            </div>
+          {!readOnly && (
+            <div className="mt-auto space-y-2.5">
+              <div className="flex items-center gap-2">
+                <SaveToBoardMenu post={post} variant="soft" align="left" />
+                <Button onClick={handleDownload} className="flex-1" disabled={saving}>
+                  {saving ? <Spinner className="h-4 w-4" /> : <IconDownload className="h-4.5 w-4.5" />}
+                  Download
+                </Button>
+              </div>
 
-            <button
-              type="button"
-              onClick={() => onDelete(post)}
-              className="flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
-            >
-              <IconTrash className="h-4.5 w-4.5" />
-              Delete cutting
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => onDelete(post)}
+                className="flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
+              >
+                <IconTrash className="h-4.5 w-4.5" />
+                Delete cutting
+              </button>
+            </div>
+          )}
         </aside>
       </div>
     </div>

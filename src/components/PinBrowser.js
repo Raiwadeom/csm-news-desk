@@ -13,7 +13,7 @@ import { thumbUrl } from "@/lib/images";
  * The grid plus everything that hangs off a pin: full-screen view and the
  * delete confirmation. Shared by the main feed and each collection page.
  */
-export default function PinBrowser({ posts, boardsById }) {
+export default function PinBrowser({ posts, boardsById, readOnly = false }) {
   const { getIdToken } = useAuth();
   const { toast, error: toastError } = useToast();
 
@@ -50,28 +50,32 @@ export default function PinBrowser({ posts, boardsById }) {
         posts={posts}
         boardsById={boardsById}
         onOpen={setActive}
+        readOnly={readOnly}
       />
 
       <Lightbox
         post={active}
         boardsById={boardsById}
         onClose={() => setActive(null)}
-        onDelete={setPendingDelete}
+        onDelete={readOnly ? undefined : setPendingDelete}
+        readOnly={readOnly}
       />
 
-      <ConfirmDialog
-        open={Boolean(pendingDelete)}
-        title="Delete this cutting?"
-        message={`"${
-          pendingDelete?.title || "This cutting"
-        }" will be removed from the feed and from every collection. This cannot be undone.`}
-        confirmLabel="Delete"
-        previewSrc={pendingDelete ? thumbUrl(pendingDelete.imageUrl, 500) : ""}
-        previewAlt={pendingDelete?.title || ""}
-        busy={busy}
-        onCancel={() => setPendingDelete(null)}
-        onConfirm={confirmDelete}
-      />
+      {!readOnly && (
+        <ConfirmDialog
+          open={Boolean(pendingDelete)}
+          title="Delete this cutting?"
+          message={`"${
+            pendingDelete?.title || "This cutting"
+          }" will be removed from the feed and from every collection. This cannot be undone.`}
+          confirmLabel="Delete"
+          previewSrc={pendingDelete ? thumbUrl(pendingDelete.imageUrl, 500) : ""}
+          previewAlt={pendingDelete?.title || ""}
+          busy={busy}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </>
   );
 }

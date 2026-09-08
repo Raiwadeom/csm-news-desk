@@ -1,8 +1,10 @@
 rules_version = '2';
 
-// Admin-only archive: anyone who can sign in is an administrator, because
-// accounts are created by hand in the Firebase console (there is no sign-up
-// screen in the app). Nothing is readable without signing in.
+// The archive itself (posts) is public read - anyone visiting the site can
+// browse and download cuttings. Everything else (collections, admin
+// profiles, and every write) stays behind sign-in. Admin accounts are
+// created by hand in the Firebase console - there is no sign-up screen in
+// the app.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -10,9 +12,9 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Newspaper cuttings
+    // Newspaper cuttings - readable by everyone, writable only by admins.
     match /posts/{postId} {
-      allow read: if signedIn();
+      allow read: if true;
       allow create: if signedIn()
                     && request.resource.data.imageUrl is string
                     && request.resource.data.imageUrl.size() > 0;

@@ -4,13 +4,15 @@ import { useMemo, useState } from "react";
 import PinBrowser from "@/components/PinBrowser";
 import EmptyState from "@/components/EmptyState";
 import { Button } from "@/components/ui";
-import { IconUpload, IconFolder, IconImage, IconAlert } from "@/components/Icons";
+import { IconUpload, IconFolder, IconImage, IconAlert, IconClose } from "@/components/Icons";
 import { useApp } from "@/lib/app-context";
+import { formatNewsDate } from "@/lib/dates";
 
 export default function FeedPage() {
   const { posts, boards, ready, dataError, query, openUpload, openCreateBoard } =
     useApp();
   const [filter, setFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
 
   const boardsById = useMemo(
     () => Object.fromEntries(boards.map((b) => [b.id, b])),
@@ -21,15 +23,18 @@ export default function FeedPage() {
     const q = query.trim().toLowerCase();
     return posts.filter((post) => {
       if (filter !== "all" && !(post.boardIds || []).includes(filter)) return false;
+      if (dateFilter && post.newsDate !== dateFilter) return false;
       if (!q) return true;
       const boardNames = (post.boardIds || [])
         .map((id) => boardsById[id]?.name || "")
         .join(" ");
-      return `${post.title} ${post.note} ${post.source} ${boardNames}`
+      return `${post.title} ${post.note} ${post.source} ${boardNames} ${formatNewsDate(
+        post.newsDate
+      )}`
         .toLowerCase()
         .includes(q);
     });
-  }, [posts, filter, query, boardsById]);
+  }, [posts, filter, dateFilter, query, boardsById]);
 
   const isEmpty = ready && posts.length === 0;
   const noMatches = ready && posts.length > 0 && visible.length === 0;
@@ -63,6 +68,30 @@ export default function FeedPage() {
           ))}
         </div>
       )}
+
+      {/* date filter */}
+      <div className="mb-4 flex items-center gap-2">
+        <label htmlFor="dateFilter" className="text-sm font-medium text-ink-700">
+          Publication date
+        </label>
+        <input
+          id="dateFilter"
+          type="date"
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+          className="rounded-lg border border-black/12 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500"
+        />
+        {dateFilter && (
+          <button
+            type="button"
+            onClick={() => setDateFilter("")}
+            className="inline-flex items-center gap-1 rounded-full bg-black/6 px-2.5 py-1.5 text-xs font-semibold text-ink-700 transition hover:bg-black/10"
+          >
+            <IconClose className="h-3.5 w-3.5" />
+            Clear
+          </button>
+        )}
+      </div>
 
       {query && ready && (
         <p className="mb-3 text-sm text-ink-500">

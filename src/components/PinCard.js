@@ -5,8 +5,9 @@ import SaveToBoardMenu from "./SaveToBoardMenu";
 import { IconDownload, IconFolder, Spinner } from "./Icons";
 import { useToast } from "./Toast";
 import { thumbUrl, downloadImage } from "@/lib/images";
+import { formatNewsDate } from "@/lib/dates";
 
-export default function PinCard({ post, onOpen, boardsById }) {
+export default function PinCard({ post, onOpen, boardsById, readOnly = false }) {
   const { toast, error: toastError } = useToast();
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -65,7 +66,7 @@ export default function PinCard({ post, onOpen, boardsById }) {
         {/* action layer: always visible on touch, on hover for pointer devices */}
         <div className="absolute inset-0 flex flex-col justify-between p-2.5 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100">
           <div className="flex justify-end">
-            <SaveToBoardMenu post={post} />
+            {!readOnly && <SaveToBoardMenu post={post} />}
           </div>
 
           <div className="flex items-end justify-between gap-2">
@@ -77,32 +78,38 @@ export default function PinCard({ post, onOpen, boardsById }) {
               <span />
             )}
 
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={handleDownload}
-                aria-label="Download this cutting"
-                className="grid h-9 w-9 place-items-center rounded-full bg-white/95 text-ink-900 shadow-md transition hover:bg-white"
-              >
-                {saving ? <Spinner className="h-4 w-4" /> : <IconDownload className="h-4.5 w-4.5" />}
-              </button>
-
-            </div>
+            {!readOnly && (
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  aria-label="Download this cutting"
+                  className="grid h-9 w-9 place-items-center rounded-full bg-white/95 text-ink-900 shadow-md transition hover:bg-white"
+                >
+                  {saving ? <Spinner className="h-4 w-4" /> : <IconDownload className="h-4.5 w-4.5" />}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {(post.title || inBoards.length > 0) && (
+      {(post.title || inBoards.length > 0 || post.newsDate) && (
         <figcaption className="px-1 pt-2">
           {post.title && (
             <p className="line-clamp-2 text-[13.5px] font-semibold leading-snug text-ink-900">
               {post.title}
             </p>
           )}
-          {inBoards.length > 0 && (
-            <p className="mt-1 flex items-center gap-1 truncate text-[12px] text-ink-500">
-              <IconFolder className="h-3.5 w-3.5 shrink-0" />
-              {inBoards.join(", ")}
+          {(inBoards.length > 0 || post.newsDate) && (
+            <p className="mt-1 flex items-center gap-2 truncate text-[12px] text-ink-500">
+              {post.newsDate && <span className="shrink-0">{formatNewsDate(post.newsDate)}</span>}
+              {inBoards.length > 0 && (
+                <span className="flex min-w-0 items-center gap-1 truncate">
+                  <IconFolder className="h-3.5 w-3.5 shrink-0" />
+                  {inBoards.join(", ")}
+                </span>
+              )}
             </p>
           )}
         </figcaption>
