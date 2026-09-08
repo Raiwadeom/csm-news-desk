@@ -72,7 +72,7 @@ export default function ProfilePage() {
 
   async function handleSignOut() {
     await signOut();
-    router.replace("/login");
+    router.replace("/");
   }
 
   return (

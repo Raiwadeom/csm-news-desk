@@ -40,7 +40,7 @@ export default function AppShell({ children }) {
 
   async function handleSignOut() {
     await signOut();
-    router.replace("/login");
+    router.replace("/");
   }
 
   const CreateMenu = ({ className = "" }) => (

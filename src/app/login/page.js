@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { COLLEGE, isFirebaseConfigured } from "@/lib/config";
-import { Spinner, IconAlert, IconCheck } from "@/components/Icons";
+import { Spinner, IconAlert, IconCheck, IconChevronLeft } from "@/components/Icons";
 
 const FIREBASE_ERRORS = {
   "auth/invalid-credential": "Incorrect email or password.",
@@ -122,6 +123,14 @@ export default function LoginPage() {
       {/* ── Sign-in panel ───────────────────────────────────────── */}
       <section className="flex flex-1 items-center justify-center px-5 py-10 sm:px-8">
         <div className="w-full max-w-sm">
+          <Link
+            href="/"
+            className="mb-5 inline-flex items-center gap-1 text-sm font-semibold text-ink-500 transition hover:text-ink-900"
+          >
+            <IconChevronLeft className="h-4 w-4" />
+            Back to the archive
+          </Link>
+
           <h2 className="text-2xl font-bold tracking-tight text-ink-900">Admin sign in</h2>
           <p className="mt-1.5 text-sm text-ink-500">
             This archive is managed by college administrators.
