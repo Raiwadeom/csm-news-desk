@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { IconClose } from "./Icons";
 
 /* ── click-outside / escape ─────────────────────────────────────── */
@@ -90,6 +91,13 @@ export function Modal({
   size = "md",
   elevated = false,
 }) {
+  // Portalled to <body>, not rendered in place. A modal opened from a pin
+  // card would otherwise sit inside the masonry's CSS `columns` container,
+  // which becomes the containing block for fixed descendants - the dialog
+  // came out one column wide (~170px on a phone) instead of full width.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -102,11 +110,11 @@ export function Modal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const width = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-3xl" }[size];
 
-  return (
+  return createPortal(
     <div
       className={`fixed inset-0 flex items-end justify-center sm:items-center ${
         elevated ? "z-[130]" : "z-[100]"
@@ -146,7 +154,8 @@ export function Modal({
           </footer>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
