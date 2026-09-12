@@ -18,11 +18,15 @@ export default function PublicHeader() {
     <header className="sticky top-0 z-50 border-b border-black/6 bg-white/92 backdrop-blur-md">
       {/*
         grid-cols-[auto_1fr_auto]: the logo and the sign-in link keep their
-        natural width, and the middle column takes whatever is left - the
-        `1fr` (not `auto`) is what lets the name actually shrink and
-        truncate on a narrow screen instead of overflowing past its column.
+        natural width and the middle column takes whatever is left.
+
+        The college name is far too long to fit on one phone-width line, so
+        below `sm` it is left-aligned beside the logo and allowed to wrap
+        onto two balanced lines - the header grows to suit. Truncating it to
+        "Chhatrapati Shivajira…" is what made it look broken. From `sm` up
+        there is room for one centred line again.
       */}
-      <div className="mx-auto grid h-16 max-w-[1800px] grid-cols-[auto_1fr_auto] items-center gap-2 px-3 sm:h-20 sm:gap-3 sm:px-6">
+      <div className="mx-auto grid max-w-[1800px] grid-cols-[auto_1fr_auto] items-center gap-2.5 px-3 py-2.5 sm:h-20 sm:gap-3 sm:px-6 sm:py-0">
         <Link href="/" className="shrink-0 justify-self-start">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-white p-0.5 ring-1 ring-black/8 sm:h-10 sm:w-10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -30,11 +34,14 @@ export default function PublicHeader() {
           </span>
         </Link>
 
-        <Link href="/" className="min-w-0 justify-self-center text-center leading-tight">
-          <span className="block truncate text-[15px] font-extrabold tracking-tight text-ink-900 sm:text-xl">
+        <Link
+          href="/"
+          className="min-w-0 justify-self-start text-left leading-tight sm:justify-self-center sm:text-center"
+        >
+          <span className="block text-balance text-[13px] font-extrabold tracking-tight text-ink-900 sm:truncate sm:text-xl">
             {COLLEGE.name}
           </span>
-          <span className="block truncate text-[11px] text-ink-500 sm:text-sm">
+          <span className="mt-0.5 block text-[10.5px] text-ink-500 sm:mt-0 sm:truncate sm:text-sm">
             {COLLEGE.city} · News Desk
           </span>
         </Link>
