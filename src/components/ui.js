@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 import { IconClose } from "./Icons";
 
 /* ── click-outside / escape ─────────────────────────────────────── */
@@ -98,16 +99,19 @@ export function Modal({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // Two effects, not one: `onClose` is usually an inline arrow, so a
+  // combined effect would tear down and re-take the scroll lock on every
+  // single render.
+  useEffect(() => {
+    if (!open) return;
+    return lockBodyScroll();
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
+    return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   if (!open || !mounted) return null;

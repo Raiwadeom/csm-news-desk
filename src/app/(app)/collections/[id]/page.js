@@ -86,6 +86,8 @@ export default function BoardPage() {
         </div>
       </header>
 
+      {!ready && <SkeletonGrid />}
+
       {ready && pins.length === 0 ? (
         <EmptyState
           icon={<IconImage className="h-7 w-7" />}
@@ -105,8 +107,19 @@ export default function BoardPage() {
           }
         />
       ) : (
-        <PinBrowser posts={pins} boardsById={boardsById} />
+        ready && <PinBrowser posts={pins} boardsById={boardsById} />
       )}
+    </div>
+  );
+}
+
+function SkeletonGrid() {
+  const heights = [220, 320, 180, 280, 240, 340, 200, 300, 260, 190, 310, 230];
+  return (
+    <div className="masonry columns-2 sm:columns-3 md:columns-4 lg:columns-5 2xl:columns-6">
+      {heights.map((h, i) => (
+        <div key={i} className="animate-pulse rounded-2xl bg-black/6" style={{ height: h }} />
+      ))}
     </div>
   );
 }

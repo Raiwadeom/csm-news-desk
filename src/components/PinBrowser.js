@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MasonryGrid from "./MasonryGrid";
 import Lightbox from "./Lightbox";
 import { ConfirmDialog } from "./ui";
@@ -29,6 +29,10 @@ export default function PinBrowser({ posts, boardsById, readOnly = false }) {
     else if (fresh !== active) setActive(fresh);
   }, [posts, active]);
 
+  const closeLightbox = useCallback(() => setActive(null), []);
+  const requestDelete = useCallback((post) => setPendingDelete(post), []);
+  const cancelDelete = useCallback(() => setPendingDelete(null), []);
+
   async function confirmDelete() {
     if (!pendingDelete) return;
     setBusy(true);
@@ -56,8 +60,8 @@ export default function PinBrowser({ posts, boardsById, readOnly = false }) {
       <Lightbox
         post={active}
         boardsById={boardsById}
-        onClose={() => setActive(null)}
-        onDelete={readOnly ? undefined : setPendingDelete}
+        onClose={closeLightbox}
+        onDelete={readOnly ? undefined : requestDelete}
         readOnly={readOnly}
       />
 
@@ -72,7 +76,7 @@ export default function PinBrowser({ posts, boardsById, readOnly = false }) {
           previewSrc={pendingDelete ? thumbUrl(pendingDelete.imageUrl, 500) : ""}
           previewAlt={pendingDelete?.title || ""}
           busy={busy}
-          onCancel={() => setPendingDelete(null)}
+          onCancel={cancelDelete}
           onConfirm={confirmDelete}
         />
       )}

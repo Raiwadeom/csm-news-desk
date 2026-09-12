@@ -8,6 +8,7 @@ import { useToast } from "./Toast";
 import { largeUrl, downloadImage } from "@/lib/images";
 import { formatNewsDate } from "@/lib/dates";
 import { updatePost } from "@/lib/store";
+import { lockBodyScroll } from "@/lib/scroll-lock";
 
 function formatDate(value) {
   if (!value) return "";
@@ -31,17 +32,19 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
     setEditingDate(false);
   }, [post?.id]);
 
+  const isOpen = Boolean(post);
+
   useEffect(() => {
-    if (!post) return;
+    if (!isOpen) return;
+    return lockBodyScroll();
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
     const onKey = (e) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [post, onClose]);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
 
   if (!post) return null;
 
