@@ -187,7 +187,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
           {!readOnly && (
             <div className="mt-auto space-y-2.5">
               <div className="flex items-center gap-2">
-                <SaveToBoardMenu post={post} variant="soft" align="left" />
+                <SaveToBoardMenu post={post} variant="soft" />
                 <Button onClick={handleDownload} className="flex-1" disabled={saving}>
                   {saving ? <Spinner className="h-4 w-4" /> : <IconDownload className="h-4.5 w-4.5" />}
                   Download

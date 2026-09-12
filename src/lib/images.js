@@ -26,26 +26,34 @@ export function largeUrl(url) {
 export function safeFileName(name) {
   const base = (name || "newspaper-clipping")
     .trim()
-    .replace(/[^\w\s.-]/g, "")
+    // Dots become hyphens rather than being kept: Cloudinary answers 400 to
+    // any fl_attachment whose filename contains one, which silently broke
+    // every download of a cutting titled from a WhatsApp filename
+    // ("WhatsApp Image 2021 09 20 at 3.50.06 PM"). Turning them into
+    // hyphens keeps dated titles readable - "09.07.2021" -> "09-07-2021".
+    .replace(/\./g, "-")
+    .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
-    .slice(0, 60);
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60)
+    .replace(/-+$/, "");
   return base || "newspaper-clipping";
 }
 
 /**
  * Saves an image to the device. Works on desktop and on mobile browsers.
- * Cloudinary gets an `fl_attachment` URL (most reliable on iOS/Android);
- * everything else is fetched as a blob and handed to a download anchor.
+ *
+ * The blob path goes first because it is the only one that can report
+ * whether the save actually happened - and it names the file exactly. If it
+ * cannot run (CORS, or an offline cache miss) Cloudinary's own
+ * `fl_attachment` is tried, and a new tab is the last resort.
  */
 export async function downloadImage(url, title) {
   const name = safeFileName(title);
   try {
-    if (isCloudinary(url)) {
-      triggerAnchor(withTransform(url, `fl_attachment:${name}`), `${name}.jpg`);
-      return true;
-    }
     const res = await fetch(url, { mode: "cors" });
-    if (!res.ok) throw new Error("fetch failed");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const blob = await res.blob();
     const ext = (blob.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
     const objectUrl = URL.createObjectURL(blob);
@@ -53,8 +61,11 @@ export async function downloadImage(url, title) {
     setTimeout(() => URL.revokeObjectURL(objectUrl), 10000);
     return true;
   } catch {
-    // Last resort: let the browser handle it in a new tab
-    // (user can then long-press / right-click to save).
+    if (isCloudinary(url)) {
+      triggerAnchor(withTransform(url, `fl_attachment:${name}`), `${name}.jpg`);
+      return true;
+    }
+    // Let the browser handle it; the user can long-press / right-click to save.
     window.open(url, "_blank", "noopener");
     return false;
   }
