@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { COLLEGE, isFirebaseConfigured } from "@/lib/config";
 import { Spinner, IconAlert, IconCheck, IconChevronLeft } from "@/components/Icons";
+import BuiltBy from "@/components/BuiltBy";
 
 const FIREBASE_ERRORS = {
   "auth/invalid-credential": "Incorrect email or password.",
@@ -113,11 +114,12 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <p className="relative mt-8 hidden text-xs text-white/60 lg:block">
-          Administrator access only · {new Date().getFullYear()}
-          <br />
-          Built by Raiwade Omrushikesh
-        </p>
+        <div className="relative mt-8 hidden text-xs lg:block">
+          <p className="text-white/60">
+            Administrator access only · {new Date().getFullYear()}
+          </p>
+          <BuiltBy tone="dark" className="mt-1.5 justify-start text-[13px]" />
+        </div>
       </section>
 
       {/* ── Sign-in panel ───────────────────────────────────────── */}
@@ -228,11 +230,12 @@ export default function LoginPage() {
             </p>
           )}
 
-          <p className="mt-8 text-center text-xs text-ink-500 lg:hidden">
-            {COLLEGE.name}, {COLLEGE.city}
-            <br />
-            Built by Raiwade Omrushikesh
-          </p>
+          <div className="mt-8 text-center text-xs lg:hidden">
+            <p className="text-ink-500">
+              {COLLEGE.name}, {COLLEGE.city}
+            </p>
+            <BuiltBy className="mt-1.5 text-[13px]" />
+          </div>
         </div>
       </section>
     </main>

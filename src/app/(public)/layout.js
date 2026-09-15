@@ -2,7 +2,9 @@
 
 import PublicHeader from "@/components/PublicHeader";
 import PublicNav from "@/components/PublicNav";
+import BuiltBy from "@/components/BuiltBy";
 import { AppDataProvider } from "@/lib/app-context";
+import { COLLEGE } from "@/lib/config";
 
 /**
  * The public archive: the main feed, the collections index and each
@@ -15,12 +17,21 @@ import { AppDataProvider } from "@/lib/app-context";
 export default function PublicLayout({ children }) {
   return (
     <AppDataProvider>
-      <div className="min-h-dvh bg-white">
+      <div className="flex min-h-dvh flex-col bg-white">
         <PublicHeader />
         <PublicNav />
-        <main className="mx-auto max-w-[1800px] px-3 pb-16 pt-4 sm:px-5">
+        <main className="mx-auto max-w-[1800px] px-3 pb-12 pt-4 sm:px-5">
           {children}
         </main>
+
+        <footer className="mt-auto border-t border-black/6 px-4 py-7">
+          <div className="mx-auto flex max-w-[1800px] flex-col items-center gap-1.5 text-center text-xs">
+            <p className="text-ink-500">
+              {COLLEGE.name}, {COLLEGE.city}
+            </p>
+            <BuiltBy className="text-[13px]" />
+          </div>
+        </footer>
       </div>
     </AppDataProvider>
   );

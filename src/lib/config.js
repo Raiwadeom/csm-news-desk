@@ -33,6 +33,14 @@ export function missingKeys() {
   return missing;
 }
 
+// The credit line shown on the login screen and at the foot of the public
+// archive. With no url the name renders as plain text rather than a dead
+// link, so a missing portfolio address can never ship a broken link.
+export const BUILDER = {
+  name: "Omrushikesh Vijaykumar Raiwade",
+  url: "",
+};
+
 export const COLLEGE = {
   name: "Chhatrapati Shivajiraje Mahavidyalaya",
   shortName: "CSM Udgir",
