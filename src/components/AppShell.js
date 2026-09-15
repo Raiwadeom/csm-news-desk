@@ -33,9 +33,15 @@ export default function AppShell({ children }) {
 
   const isActive = (href) => pathname === href || pathname.startsWith(`${href}/`);
 
+  // /feed, /collections and a single collection all filter on the query
+  // themselves, so typing there stays put. Anywhere else (the profile
+  // screen) there is nothing to filter, so the search jumps to the feed.
+  const filtersHere =
+    pathname === "/feed" || pathname.startsWith("/collections");
+
   function onSearch(value) {
     setQuery(value);
-    if (value && pathname !== "/feed") router.push("/feed");
+    if (value && !filtersHere) router.push("/feed");
   }
 
   async function handleSignOut() {

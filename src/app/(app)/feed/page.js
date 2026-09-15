@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 import PinBrowser from "@/components/PinBrowser";
 import EmptyState from "@/components/EmptyState";
+import SkeletonGrid from "@/components/SkeletonGrid";
 import { Button } from "@/components/ui";
 import { IconUpload, IconFolder, IconImage, IconAlert, IconClose } from "@/components/Icons";
 import { useApp } from "@/lib/app-context";
-import { formatNewsDate } from "@/lib/dates";
+import { filterPosts } from "@/lib/search";
 
 export default function FeedPage() {
   const { posts, boards, ready, dataError, query, openUpload, openCreateBoard } =
@@ -20,20 +21,12 @@ export default function FeedPage() {
   );
 
   const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return posts.filter((post) => {
+    const narrowed = posts.filter((post) => {
       if (filter !== "all" && !(post.boardIds || []).includes(filter)) return false;
       if (dateFilter && post.newsDate !== dateFilter) return false;
-      if (!q) return true;
-      const boardNames = (post.boardIds || [])
-        .map((id) => boardsById[id]?.name || "")
-        .join(" ");
-      return `${post.title} ${post.note} ${post.source} ${boardNames} ${formatNewsDate(
-        post.newsDate
-      )}`
-        .toLowerCase()
-        .includes(q);
+      return true;
     });
+    return filterPosts(narrowed, query, boardsById);
   }, [posts, filter, dateFilter, query, boardsById]);
 
   const isEmpty = ready && posts.length === 0;
@@ -148,20 +141,5 @@ function Chip({ active, children, ...rest }) {
     >
       {children}
     </button>
-  );
-}
-
-function SkeletonGrid() {
-  const heights = [220, 320, 180, 280, 240, 340, 200, 300, 260, 190, 310, 230];
-  return (
-    <div className="masonry columns-2 sm:columns-3 md:columns-4 lg:columns-5 2xl:columns-6">
-      {heights.map((h, i) => (
-        <div
-          key={i}
-          className="animate-pulse rounded-2xl bg-black/6"
-          style={{ height: h }}
-        />
-      ))}
-    </div>
   );
 }

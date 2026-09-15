@@ -13,8 +13,13 @@ import { subscribePosts, subscribeBoards } from "./store";
 const AppContext = createContext(null);
 
 /**
- * Holds the two live lists the whole app reads from (pins + collections) and
- * the state of the global Create dialogs, so any screen can open them.
+ * Holds the two live lists the whole app reads from (pins + collections),
+ * the shared search phrase, and the state of the global Create dialogs, so
+ * any screen can open them.
+ *
+ * Both sides mount it: the admin shell and the public archive. The public
+ * routes simply never render the Create dialogs, so those fields sit
+ * unused there.
  */
 export function AppDataProvider({ children }) {
   const [posts, setPosts] = useState([]);
@@ -33,10 +38,11 @@ export function AppDataProvider({ children }) {
 
     // A Firestore error here is almost always the security rules not being
     // published yet, so it is surfaced rather than left as an empty feed.
+    // Visitors see this banner too, hence the "if you are the administrator".
     const onError = (err) => {
       setDataError(
         err?.code === "permission-denied"
-          ? "Firestore denied the request. Publish the rules from firestore.rules in the Firebase console."
+          ? "The database refused that request. If you are the administrator, publish the rules from firestore.rules in the Firebase console."
           : err?.message || "Could not reach the database."
       );
       gotPosts = true;

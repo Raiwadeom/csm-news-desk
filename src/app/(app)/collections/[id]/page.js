@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import PinBrowser from "@/components/PinBrowser";
 import EmptyState from "@/components/EmptyState";
+import SkeletonGrid from "@/components/SkeletonGrid";
 import { Button } from "@/components/ui";
 import {
   IconChevronLeft,
@@ -14,6 +15,7 @@ import {
   IconImage,
 } from "@/components/Icons";
 import { useApp } from "@/lib/app-context";
+import { filterPosts } from "@/lib/search";
 
 export default function BoardPage() {
   const { id } = useParams();
@@ -26,14 +28,15 @@ export default function BoardPage() {
     [boards]
   );
 
-  const pins = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return posts
-      .filter((p) => (p.boardIds || []).includes(id))
-      .filter((p) =>
-        q ? `${p.title} ${p.note} ${p.source}`.toLowerCase().includes(q) : true
-      );
-  }, [posts, id, query]);
+  const pins = useMemo(
+    () =>
+      filterPosts(
+        posts.filter((p) => (p.boardIds || []).includes(id)),
+        query,
+        boardsById
+      ),
+    [posts, id, query, boardsById]
+  );
 
   if (ready && !board) {
     return (
@@ -109,17 +112,6 @@ export default function BoardPage() {
       ) : (
         ready && <PinBrowser posts={pins} boardsById={boardsById} />
       )}
-    </div>
-  );
-}
-
-function SkeletonGrid() {
-  const heights = [220, 320, 180, 280, 240, 340, 200, 300, 260, 190, 310, 230];
-  return (
-    <div className="masonry columns-2 sm:columns-3 md:columns-4 lg:columns-5 2xl:columns-6">
-      {heights.map((h, i) => (
-        <div key={i} className="animate-pulse rounded-2xl bg-black/6" style={{ height: h }} />
-      ))}
     </div>
   );
 }

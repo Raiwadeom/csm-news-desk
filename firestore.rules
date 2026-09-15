@@ -1,8 +1,8 @@
 rules_version = '2';
 
-// The archive itself (posts) is public read - anyone visiting the site can
-// browse and download cuttings. Everything else (collections, admin
-// profiles, and every write) stays behind sign-in. Admin accounts are
+// The archive itself is public read - anyone visiting the site can browse
+// the cuttings (posts) and the collections they are grouped into (boards).
+// Admin profiles and every write stay behind sign-in. Admin accounts are
 // created by hand in the Firebase console - there is no sign-up screen in
 // the app.
 service cloud.firestore {
@@ -21,9 +21,10 @@ service cloud.firestore {
       allow update, delete: if signedIn();
     }
 
-    // Collections / boards
+    // Collections / boards - readable by everyone so the public archive can
+    // offer a Collections tab and search by event name; writable by admins.
     match /boards/{boardId} {
-      allow read: if signedIn();
+      allow read: if true;
       allow create: if signedIn()
                     && request.resource.data.name is string
                     && request.resource.data.name.size() > 0

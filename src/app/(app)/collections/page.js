@@ -5,17 +5,13 @@ import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import PinBrowser from "@/components/PinBrowser";
 import EmptyState from "@/components/EmptyState";
+import SkeletonGrid from "@/components/SkeletonGrid";
+import BoardCard from "@/components/BoardCard";
 import { Dropdown, MenuItem, Button } from "@/components/ui";
-import {
-  IconPlus,
-  IconChevronDown,
-  IconImage,
-  IconFolder,
-  IconEdit,
-} from "@/components/Icons";
-import { thumbUrl } from "@/lib/images";
+import { IconPlus, IconChevronDown, IconImage, IconFolder } from "@/components/Icons";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth";
+import { filterPosts, filterBoards } from "@/lib/search";
 
 export default function CollectionsPage() {
   const { posts, boards, boardStats, ready, query, openUpload, openCreateBoard, openEditBoard } =
@@ -28,13 +24,11 @@ export default function CollectionsPage() {
     [boards]
   );
 
-  const visiblePins = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return posts;
-    return posts.filter((p) =>
-      `${p.title} ${p.note} ${p.source}`.toLowerCase().includes(q)
-    );
-  }, [posts, query]);
+  const visiblePins = useMemo(
+    () => filterPosts(posts, query, boardsById),
+    [posts, query, boardsById]
+  );
+  const visibleBoards = useMemo(() => filterBoards(boards, query), [boards, query]);
 
   return (
     <div>
@@ -69,8 +63,8 @@ export default function CollectionsPage() {
       <div className="mb-5 flex items-center justify-between gap-3 border-b border-black/8">
         <div className="flex gap-1">
           {[
-            { id: "pins", label: "Pins", count: posts.length },
-            { id: "boards", label: "Boards", count: boards.length },
+            { id: "pins", label: "Pins", count: visiblePins.length },
+            { id: "boards", label: "Boards", count: visibleBoards.length },
           ].map((t) => (
             <button
               key={t.id}
@@ -111,25 +105,32 @@ export default function CollectionsPage() {
 
       {/* ── content ──────────────────────────────────────────────── */}
       {tab === "boards" &&
-        (boards.length === 0 ? (
+        (visibleBoards.length === 0 ? (
           <EmptyState
             icon={<IconFolder className="h-7 w-7" />}
-            title="Organise your cuttings"
-            body="Boards are where your cuttings live. Create a board like Shivjayanti or Sports and start adding pins to it — they will keep showing in the main feed too."
+            title={query ? "No board by that name" : "Organise your cuttings"}
+            body={
+              query
+                ? "Try part of the event name, or switch to the Pins tab to search every cutting."
+                : "Boards are where your cuttings live. Create a board like Shivjayanti or Sports and start adding pins to it — they will keep showing in the main feed too."
+            }
             actions={
-              <Button onClick={openCreateBoard}>
-                <IconPlus className="h-4.5 w-4.5" />
-                Create a board
-              </Button>
+              !query && (
+                <Button onClick={openCreateBoard}>
+                  <IconPlus className="h-4.5 w-4.5" />
+                  Create a board
+                </Button>
+              )
             }
           />
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {boards.map((board) => (
+            {visibleBoards.map((board) => (
               <BoardCard
                 key={board.id}
                 board={board}
                 stats={boardStats[board.id]}
+                href={`/collections/${board.id}`}
                 onEdit={() => openEditBoard(board)}
               />
             ))}
@@ -161,79 +162,6 @@ export default function CollectionsPage() {
         ) : (
           <PinBrowser posts={visiblePins} boardsById={boardsById} />
         ))}
-    </div>
-  );
-}
-
-function SkeletonGrid() {
-  const heights = [220, 320, 180, 280, 240, 340, 200, 300, 260, 190, 310, 230];
-  return (
-    <div className="masonry columns-2 sm:columns-3 md:columns-4 lg:columns-5 2xl:columns-6">
-      {heights.map((h, i) => (
-        <div key={i} className="animate-pulse rounded-2xl bg-black/6" style={{ height: h }} />
-      ))}
-    </div>
-  );
-}
-
-function BoardCard({ board, stats, onEdit }) {
-  const covers = stats?.covers || [];
-  const count = stats?.count || 0;
-
-  return (
-    <div className="group">
-      <Link
-        href={`/collections/${board.id}`}
-        className="block overflow-hidden rounded-2xl bg-black/5 ring-brand-500/40 transition group-hover:brightness-[0.97] focus:outline-none focus-visible:ring-4"
-      >
-        {/* Cover tiles are positioned absolutely inside fixed-ratio boxes -
-            a plain grid would let each image's intrinsic height stretch its
-            row and spill out of the card. */}
-        <div className="grid aspect-[4/3] grid-cols-3 grid-rows-2 gap-0.5">
-          <CoverTile post={covers[0]} width={400} className="col-span-2 row-span-2" />
-          <CoverTile post={covers[1]} width={200} />
-          <CoverTile post={covers[2]} width={200} />
-        </div>
-      </Link>
-
-      <div className="mt-2 flex items-start gap-1.5 px-0.5">
-        <div className="min-w-0 flex-1">
-          <Link
-            href={`/collections/${board.id}`}
-            className="block truncate text-[15px] font-bold text-ink-900 hover:underline"
-          >
-            {board.name}
-          </Link>
-          <p className="truncate text-[13px] text-ink-500">
-            {count} {count === 1 ? "pin" : "pins"}
-            {board.description ? ` · ${board.description}` : ""}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onEdit}
-          aria-label={`Edit ${board.name}`}
-          className="shrink-0 rounded-full p-1.5 text-ink-500 opacity-0 transition hover:bg-black/6 hover:text-ink-900 focus:opacity-100 group-hover:opacity-100"
-        >
-          <IconEdit className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function CoverTile({ post, width, className = "" }) {
-  return (
-    <div className={`relative overflow-hidden bg-black/8 ${className}`}>
-      {post && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={thumbUrl(post.imageUrl, width)}
-          alt=""
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      )}
     </div>
   );
 }
