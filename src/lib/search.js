@@ -14,11 +14,53 @@
 
 import { formatNewsDate } from "./dates";
 
-export function tokenize(query) {
-  return String(query || "")
+// Dates are levelled out on both sides of the comparison so that the way
+// somebody types one never decides whether it is found:
+//
+//   separators   "2-2-2021" and "2.2.2021" both become "2/2/2021"
+//   zero padding "09/07/2021" becomes "9/7/2021"
+//
+// This runs over ordinary text too, which matters here because plenty of
+// the cuttings are titled with nothing but their date ("09.07.2021").
+const DATE_SEPARATORS = /[.\/\-\u2010-\u2015]/g;
+const LEADING_ZEROS = /\b0+(\d)/g;
+
+function normalize(text) {
+  return String(text || "")
     .toLowerCase()
-    .split(/\s+/)
+    .replace(DATE_SEPARATORS, "/")
+    .replace(LEADING_ZEROS, "$1");
+}
+
+export function tokenize(query) {
+  return normalize(query)
+    .split(/[\s,]+/)
     .filter(Boolean);
+}
+
+/**
+ * The spellings of one publication date that somebody might type. A cutting
+ * from 2 February 2021 is stored as "2021-02-02" but will be searched for
+ * as "2/2/2021" far more often, so every reasonable form is indexed.
+ */
+function dateVariants(value) {
+  if (!value) return "";
+  const d = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return value;
+
+  const day = d.getDate();
+  const month = d.getMonth() + 1;
+  const year = d.getFullYear();
+  const pad = (n) => String(n).padStart(2, "0");
+
+  return [
+    value, // 2021-02-02, the stored form
+    `${day}/${month}/${year}`, // 2/2/2021
+    `${pad(day)}/${pad(month)}/${year}`, // 02/02/2021
+    `${day}/${month}/${String(year).slice(2)}`, // 2/2/21
+    formatNewsDate(value), // 2 Feb 2021
+    d.toLocaleDateString("en-IN", { month: "long", year: "numeric" }), // February 2021
+  ].join(" ");
 }
 
 function boardNamesOf(post, boardsById) {
@@ -30,24 +72,21 @@ function boardNamesOf(post, boardsById) {
 
 /** Everything about a cutting that a visitor might reasonably type. */
 function postHaystack(post, boardsById) {
-  return [
+  const parts = [
     post.title,
     post.note,
     post.source,
     post.ownerName,
     boardNamesOf(post, boardsById),
-    // Both spellings of the date: "2026-02-19" catches a typed year,
-    // "19 Feb 2026" catches a typed month.
-    post.newsDate,
-    formatNewsDate(post.newsDate),
+    dateVariants(post.newsDate),
   ]
     .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+    .join(" ");
+  return normalize(parts);
 }
 
 function boardHaystack(board) {
-  return [board.name, board.description].filter(Boolean).join(" ").toLowerCase();
+  return normalize([board.name, board.description].filter(Boolean).join(" "));
 }
 
 function matchesAll(haystack, tokens) {
@@ -59,6 +98,27 @@ export function filterPosts(posts, query, boardsById) {
   const tokens = tokenize(query);
   if (tokens.length === 0) return posts;
   return posts.filter((post) => matchesAll(postHaystack(post, boardsById), tokens));
+}
+
+/**
+ * Cuttings published inside an inclusive date range. Both bounds are
+ * optional, so "everything from 2021 onwards" is a range too. Entered back
+ * to front they are swapped rather than quietly matching nothing.
+ *
+ * Undated cuttings are excluded: an unknown date cannot be shown to fall in
+ * a range, and including them would make the count meaningless.
+ */
+export function filterByDateRange(posts, from, to) {
+  if (!from && !to) return posts;
+  const [lo, hi] = from && to && from > to ? [to, from] : [from, to];
+  // "YYYY-MM-DD" strings compare chronologically as plain text, so there is
+  // no parsing and no timezone to get wrong.
+  return posts.filter((post) => {
+    if (!post.newsDate) return false;
+    if (lo && post.newsDate < lo) return false;
+    if (hi && post.newsDate > hi) return false;
+    return true;
+  });
 }
 
 /** Collections whose name or description matches the query. */

@@ -87,7 +87,7 @@ export default function PublicFeedPage() {
         <EmptyState
           icon={<IconImage className="h-7 w-7" />}
           title="Nothing matches that search"
-          body="Try a headline, a newspaper name, a year, or the name of a collection such as “Shivjayanti”."
+          body="Try a headline, a newspaper name, the name of a collection such as “Shivjayanti”, or the date it was published — 2/2/2021 works, and so does 2 Feb 2021."
         />
       )}
 

@@ -7,27 +7,35 @@ import SkeletonGrid from "@/components/SkeletonGrid";
 import { Button } from "@/components/ui";
 import { IconUpload, IconFolder, IconImage, IconAlert, IconClose } from "@/components/Icons";
 import { useApp } from "@/lib/app-context";
-import { filterPosts } from "@/lib/search";
+import { filterPosts, filterByDateRange } from "@/lib/search";
 
 export default function FeedPage() {
   const { posts, boards, ready, dataError, query, openUpload, openCreateBoard } =
     useApp();
   const [filter, setFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const boardsById = useMemo(
     () => Object.fromEntries(boards.map((b) => [b.id, b])),
     [boards]
   );
 
+  const hasRange = Boolean(dateFrom || dateTo);
+
   const visible = useMemo(() => {
-    const narrowed = posts.filter((post) => {
-      if (filter !== "all" && !(post.boardIds || []).includes(filter)) return false;
-      if (dateFilter && post.newsDate !== dateFilter) return false;
-      return true;
-    });
-    return filterPosts(narrowed, query, boardsById);
-  }, [posts, filter, dateFilter, query, boardsById]);
+    const inBoard =
+      filter === "all"
+        ? posts
+        : posts.filter((post) => (post.boardIds || []).includes(filter));
+    const inRange = filterByDateRange(inBoard, dateFrom, dateTo);
+    return filterPosts(inRange, query, boardsById);
+  }, [posts, filter, dateFrom, dateTo, query, boardsById]);
+
+  const undated = useMemo(
+    () => (hasRange ? posts.filter((p) => !p.newsDate).length : 0),
+    [posts, hasRange]
+  );
 
   const isEmpty = ready && posts.length === 0;
   const noMatches = ready && posts.length > 0 && visible.length === 0;
@@ -62,27 +70,42 @@ export default function FeedPage() {
         </div>
       )}
 
-      {/* date filter */}
-      <div className="mb-4 flex items-center gap-2">
-        <label htmlFor="dateFilter" className="text-sm font-medium text-ink-700">
-          Publication date
-        </label>
+      {/* publication-date range */}
+      <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-2">
+        <span className="text-sm font-medium text-ink-700">Published between</span>
         <input
-          id="dateFilter"
           type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          aria-label="Published on or after"
           className="rounded-lg border border-black/12 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500"
         />
-        {dateFilter && (
+        <span className="text-sm text-ink-500">and</span>
+        <input
+          type="date"
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          aria-label="Published on or before"
+          className="rounded-lg border border-black/12 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500"
+        />
+        {hasRange && (
           <button
             type="button"
-            onClick={() => setDateFilter("")}
+            onClick={() => {
+              setDateFrom("");
+              setDateTo("");
+            }}
             className="inline-flex items-center gap-1 rounded-full bg-black/6 px-2.5 py-1.5 text-xs font-semibold text-ink-700 transition hover:bg-black/10"
           >
             <IconClose className="h-3.5 w-3.5" />
-            Clear
+            Clear dates
           </button>
+        )}
+        {hasRange && ready && (
+          <span className="text-xs text-ink-500">
+            {visible.length} in range
+            {undated > 0 && ` · ${undated} cutting${undated === 1 ? "" : "s"} have no date set`}
+          </span>
         )}
       </div>
 

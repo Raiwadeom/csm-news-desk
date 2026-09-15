@@ -9,7 +9,14 @@ import { useApp } from "@/lib/app-context";
 import { addPost, createBoard } from "@/lib/store";
 import { uploadImage, validateImageFile } from "@/lib/upload";
 import { isCloudinaryConfigured } from "@/lib/config";
-import { todayInputValue } from "@/lib/dates";
+import { todayInputValue, formatNewsDate } from "@/lib/dates";
+
+/** The numeric form of a date, echoed back so the admin can see it is findable. */
+function searchableAs(value) {
+  const d = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+}
 
 const NEW_BOARD = "__new__";
 
@@ -30,7 +37,10 @@ export default function UploadModal() {
   const [boardId, setBoardId] = useState("");
   const [newBoardName, setNewBoardName] = useState("");
   const [source, setSource] = useState("");
-  const [newsDate, setNewsDate] = useState(todayInputValue());
+  // Deliberately blank rather than today's date: most cuttings being added
+  // are old paper, and a default of "today" silently stamped 2021 clippings
+  // with the upload date, which then could not be found by their real one.
+  const [newsDate, setNewsDate] = useState("");
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef(null);
@@ -44,7 +54,7 @@ export default function UploadModal() {
     setBoardId(uploadState.boardId || "");
     setNewBoardName("");
     setSource("");
-    setNewsDate(todayInputValue());
+    setNewsDate("");
     setBusy(false);
   }, [open, uploadState.boardId]);
 
@@ -301,20 +311,38 @@ export default function UploadModal() {
           />
         </Field>
 
-        <Field
-          label="Date of publication"
-          htmlFor="newsDate"
-          hint="The date the story ran in the paper — shown on the cutting to everyone."
-        >
-          <input
-            id="newsDate"
-            type="date"
-            value={newsDate}
-            onChange={(e) => setNewsDate(e.target.value)}
-            disabled={busy}
-            className={inputClass}
-          />
-        </Field>
+        <div className="sm:col-span-2">
+          <Field
+            label="Date of publication"
+            htmlFor="newsDate"
+            hint="The date the story ran in the paper, not today — this is what the cutting is shown and searched by."
+          >
+            <div className="flex items-center gap-2">
+              <input
+                id="newsDate"
+                type="date"
+                value={newsDate}
+                onChange={(e) => setNewsDate(e.target.value)}
+                disabled={busy}
+                className={inputClass}
+              />
+              <button
+                type="button"
+                onClick={() => setNewsDate(todayInputValue())}
+                disabled={busy}
+                className="shrink-0 rounded-full bg-black/6 px-3 py-2 text-xs font-semibold text-ink-700 transition hover:bg-black/10 disabled:opacity-60"
+              >
+                Today
+              </button>
+            </div>
+          </Field>
+          {newsDate && (
+            <p className="mt-1.5 text-xs font-medium text-ink-700">
+              Will be published as {formatNewsDate(newsDate)} — searchable as{" "}
+              {searchableAs(newsDate)}.
+            </p>
+          )}
+        </div>
 
         {boardId === NEW_BOARD && (
           <div className="sm:col-span-2">

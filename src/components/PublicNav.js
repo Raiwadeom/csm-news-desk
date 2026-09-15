@@ -27,11 +27,13 @@ export default function PublicNav() {
   // Collections tab still means something on the feed, and the other way
   // round.
 
+  // Kept short enough not to be clipped in the box at phone width; the
+  // empty states carry the longer "here is what you can type" copy.
   const placeholder = insideOneCollection
     ? "Search in this collection…"
     : onCollections
-      ? "Search collections — try “Shivjayanti”"
-      : "Search cuttings — try “Shivjayanti 2026”";
+      ? "Search collections…"
+      : "Search cuttings, dates, events…";
 
   return (
     <div className="border-b border-black/6">
