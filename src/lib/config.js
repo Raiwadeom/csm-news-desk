@@ -38,7 +38,7 @@ export function missingKeys() {
 // link, so a missing portfolio address can never ship a broken link.
 export const BUILDER = {
   name: "Omrushikesh Vijaykumar Raiwade",
-  url: "",
+  url: "https://portfolio-zeta-one-nhmx6ncw7b.vercel.app/",
 };
 
 export const COLLEGE = {
