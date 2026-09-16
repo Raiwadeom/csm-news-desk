@@ -20,7 +20,15 @@ export default function PublicLayout({ children }) {
       <div className="flex min-h-dvh flex-col bg-white">
         <PublicHeader />
         <PublicNav />
-        <main className="mx-auto max-w-[1800px] px-3 pb-12 pt-4 sm:px-5">
+        {/*
+          min-w-0 is load-bearing. The wrapper above is a flex column so the
+          footer can sit at the bottom of a short page, which makes this a
+          flex item - and a flex item defaults to min-width:auto, refusing to
+          shrink below its content's min-content width. The masonry's
+          min-content is two columns wide, so on a phone the page grew to
+          410px inside a 375px viewport and scrolled sideways.
+        */}
+        <main className="mx-auto w-full min-w-0 max-w-[1800px] px-3 pb-12 pt-4 sm:px-5">
           {children}
         </main>
 
