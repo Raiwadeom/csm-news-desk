@@ -1,11 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/Toast";
-import { COLLEGE } from "@/lib/config";
-
-// Set NEXT_PUBLIC_SITE_URL to the real domain once it is bought - it is
-// what makes the share card's image URL absolute.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://csm-news-desk.vercel.app";
+import { COLLEGE, SITE_URL as siteUrl } from "@/lib/config";
 
 const title = `News Desk · ${COLLEGE.shortName}`;
 const description = `Newspaper cutting archive of ${COLLEGE.name}, ${COLLEGE.city} — decades of press coverage, kept in one place and free to browse.`;

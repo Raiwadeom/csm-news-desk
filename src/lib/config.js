@@ -10,6 +10,12 @@ export const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// The canonical address of the site. Set NEXT_PUBLIC_SITE_URL in Vercel the
+// moment a custom domain goes live - it is what makes share-card images and
+// the sitemap absolute, and until it is set both still point at the old host.
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://csm-news-desk.vercel.app";
+
 export const cloudinaryCloudName =
   process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "";
 
