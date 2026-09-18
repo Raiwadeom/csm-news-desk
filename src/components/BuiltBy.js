@@ -24,7 +24,7 @@ export default function BuiltBy({ tone = "light", className = "" }) {
   );
 
   return (
-    <span className={`inline-flex flex-wrap items-center justify-center gap-x-1.5 ${prefix} ${className}`}>
+    <span className={`inline-flex flex-nowrap items-center justify-center gap-x-1.5 whitespace-nowrap ${prefix} ${className}`}>
       <span>Built by</span>
       {BUILDER.url ? (
         <a
