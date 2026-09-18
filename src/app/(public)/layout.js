@@ -35,23 +35,21 @@ export default function PublicLayout({ children }) {
 
         <footer className="mt-auto border-t border-black/6 px-4 py-7">
           {/*
-            The centered credit lines and the visitor pill compete for the
-            same row on wide screens, so this is a 3-column grid with the
-            pill pinned to its own right-hand column instead of stacked
-            between the other two lines. Below sm it collapses to one
-            centered column, pill last.
+            On a phone this is a two-item row - credit lines on the left,
+            the visitor pill pinned to the right via justify-between. From
+            sm up it switches to a 3-column grid (spacer / credit / pill)
+            so the credit lines can sit dead-center with the pill still on
+            the right, instead of the pill fighting them for the same line.
           */}
-          <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-center gap-3 text-center text-xs sm:grid-cols-[1fr_auto_1fr]">
+          <div className="mx-auto flex max-w-[1800px] items-start justify-between gap-3 text-xs sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:text-center">
             <div className="hidden sm:block" aria-hidden="true" />
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex min-w-0 flex-1 flex-col items-start gap-1.5 text-left sm:flex-initial sm:items-center sm:text-center">
               <p className="text-ink-500">
                 {COLLEGE.name}, {COLLEGE.city}
               </p>
               <BuiltBy className="text-[13px]" />
             </div>
-            <div className="flex justify-center sm:justify-end">
-              <VisitorCounter className="text-[11px]" />
-            </div>
+            <VisitorCounter className="shrink-0 text-[11px] sm:justify-self-end" />
           </div>
         </footer>
       </div>
