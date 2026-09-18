@@ -45,11 +45,18 @@ export default function PublicLayout({ children }) {
           */}
           <div className="mx-auto flex max-w-[1800px] flex-col gap-3 text-xs sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center">
             <div className="hidden sm:block" aria-hidden="true" />
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <p className="text-ink-500">
+            <div className="flex flex-col items-center gap-1 text-center">
+              <span className="mb-1 grid h-9 w-9 place-items-center rounded-lg bg-white p-1 ring-1 ring-black/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={COLLEGE.logo} alt="" className="h-full w-full object-contain" />
+              </span>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[#b3401d]">
+                {COLLEGE.trust}
+              </p>
+              <p className="text-sm font-extrabold uppercase tracking-tight text-[#5c1310]">
                 {COLLEGE.name}, {COLLEGE.city}
               </p>
-              <BuiltBy className="text-[13px]" />
+              <BuiltBy className="mt-0.5 text-[13px]" />
             </div>
             <div className="flex justify-end">
               <VisitorCounter className="text-[11px]" />

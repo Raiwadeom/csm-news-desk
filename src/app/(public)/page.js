@@ -41,6 +41,16 @@ export default function PublicFeedPage() {
 
   return (
     <div>
+      <div className="mb-5 border-l-4 border-[#5c1310] pl-3">
+        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#5c1310] sm:text-3xl">
+          Newspaper Archive
+        </h1>
+        <p className="mt-1 text-sm text-ink-600">
+          Every published cutting, newest first — search by headline, date or
+          collection.
+        </p>
+      </div>
+
       {dataError && (
         <p
           role="alert"

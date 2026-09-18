@@ -99,14 +99,14 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
         role="dialog"
         aria-modal="true"
         aria-label={post.title || "Newspaper cutting"}
-        className="animate-sheet relative flex max-h-dvh w-full max-w-5xl flex-col overflow-hidden bg-white sm:max-h-[88dvh] sm:flex-row sm:rounded-3xl sm:shadow-2xl"
+        className="animate-sheet relative flex max-h-dvh w-full max-w-5xl flex-col overflow-hidden bg-white sm:max-h-[88dvh] sm:flex-row sm:rounded-lg sm:border sm:border-black/10 sm:shadow-2xl"
       >
         <div className="flex min-h-0 flex-1 items-center justify-center bg-black/[0.04] p-2 sm:p-5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={largeUrl(post.imageUrl)}
             alt={post.title || "Newspaper cutting"}
-            className="max-h-[52dvh] w-auto max-w-full rounded-xl object-contain shadow-sm sm:max-h-[78dvh]"
+            className="max-h-[52dvh] w-auto max-w-full rounded-md border border-black/10 object-contain shadow-sm sm:max-h-[78dvh]"
           />
         </div>
 
@@ -118,59 +118,69 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
             {post.note && (
               <p className="mt-2 text-sm leading-relaxed text-ink-700">{post.note}</p>
             )}
-            <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-500">
-              {post.source && <span className="font-semibold text-ink-700">{post.source}</span>}
-              {post.source && formatDate(post.createdAt) && <span>·</span>}
-              {formatDate(post.createdAt) && <span>Added {formatDate(post.createdAt)}</span>}
-            </p>
 
-            {editingDate ? (
-              <div className="mt-2 flex items-center gap-1.5">
-                <input
-                  type="date"
-                  value={dateDraft}
-                  onChange={(e) => setDateDraft(e.target.value)}
-                  autoFocus
-                  className="rounded-lg border border-black/12 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500"
-                />
-                <button
-                  type="button"
-                  onClick={handleSaveDate}
-                  disabled={savingDate}
-                  aria-label="Save date"
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-60"
-                >
-                  {savingDate ? <Spinner className="h-4 w-4" /> : <IconCheck className="h-4 w-4" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditingDate(false)}
-                  disabled={savingDate}
-                  aria-label="Cancel"
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-500 transition hover:bg-black/6"
-                >
-                  <IconClose className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              (post.newsDate || !readOnly) && (
-                <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-ink-700">
-                  {post.newsDate
-                    ? `Published ${formatNewsDate(post.newsDate)}`
-                    : "No publication date set"}
-                  {!readOnly && (
-                    <button
-                      type="button"
-                      onClick={startEditDate}
-                      aria-label="Edit publication date"
-                      className="rounded-full p-1 text-ink-500 transition hover:bg-black/6 hover:text-ink-900"
-                    >
-                      <IconEdit className="h-3.5 w-3.5" />
-                    </button>
+            <div className="mt-3 divide-y divide-black/8 rounded-md border border-black/10 bg-black/[0.02] text-xs">
+              {post.source && (
+                <div className="flex items-center justify-between gap-2 px-3 py-1.5">
+                  <span className="font-bold uppercase tracking-wide text-ink-500">Source</span>
+                  <span className="font-semibold text-ink-900">{post.source}</span>
+                </div>
+              )}
+              {!readOnly && formatDate(post.createdAt) && (
+                <div className="flex items-center justify-between gap-2 px-3 py-1.5">
+                  <span className="font-bold uppercase tracking-wide text-ink-500">Added</span>
+                  <span className="text-ink-700">{formatDate(post.createdAt)}</span>
+                </div>
+              )}
+              {(post.newsDate || !readOnly) && (
+                <div className="flex items-center justify-between gap-2 px-3 py-1.5">
+                  <span className="font-bold uppercase tracking-wide text-ink-500">Published</span>
+                  {editingDate ? (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="date"
+                        value={dateDraft}
+                        onChange={(e) => setDateDraft(e.target.value)}
+                        autoFocus
+                        className="rounded border border-black/12 bg-white px-2 py-1 text-xs outline-none focus:border-brand-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSaveDate}
+                        disabled={savingDate}
+                        aria-label="Save date"
+                        className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-60"
+                      >
+                        {savingDate ? <Spinner className="h-3.5 w-3.5" /> : <IconCheck className="h-3.5 w-3.5" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingDate(false)}
+                        disabled={savingDate}
+                        aria-label="Cancel"
+                        className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-ink-500 transition hover:bg-black/6"
+                      >
+                        <IconClose className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="flex items-center gap-1 font-bold text-[#5c1310]">
+                      {post.newsDate ? formatNewsDate(post.newsDate) : "Not set"}
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          onClick={startEditDate}
+                          aria-label="Edit publication date"
+                          className="rounded-full p-1 text-ink-500 transition hover:bg-black/6 hover:text-ink-900"
+                        >
+                          <IconEdit className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </span>
                   )}
-                </p>
-              )
-            )}
+                </div>
+              )}
+            </div>
           </div>
 
           {boardNames.length > 0 && (
@@ -178,7 +188,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
               {boardNames.map((name) => (
                 <span
                   key={name}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-black/6 px-2.5 py-1 text-xs font-medium text-ink-700"
+                  className="inline-flex items-center gap-1.5 rounded-sm border border-[#5c1310]/25 bg-[#5c1310]/5 px-2.5 py-1 text-xs font-semibold text-[#5c1310]"
                 >
                   <IconFolder className="h-3.5 w-3.5" />
                   {name}

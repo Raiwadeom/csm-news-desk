@@ -87,7 +87,7 @@ export default function LoginPage() {
           aria-hidden="true"
         />
 
-        <div className="relative flex items-center gap-3.5">
+        <Link href="/" className="relative flex items-center gap-3.5">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white p-1.5 shadow-md lg:h-16 lg:w-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={COLLEGE.logo} alt="College logo" className="h-full w-full object-contain" />
@@ -99,7 +99,7 @@ export default function LoginPage() {
             <h1 className="text-lg font-bold leading-tight lg:text-xl">{COLLEGE.name}</h1>
             <p className="text-sm text-white/75">{COLLEGE.city}</p>
           </div>
-        </div>
+        </Link>
 
         <div className="relative mt-10 max-w-md lg:mt-0">
           <h2 className="text-3xl font-extrabold leading-tight tracking-tight lg:text-[2.7rem]">
@@ -215,7 +215,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={busy || !isFirebaseConfigured}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3.5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/25 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3.5 text-[15px] font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:bg-brand-700 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-brand-500/25 active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100"
             >
               {busy && <Spinner className="h-4.5 w-4.5" />}
               {busy ? "Signing in…" : "Sign in"}
@@ -230,11 +230,18 @@ export default function LoginPage() {
             </p>
           )}
 
-          <div className="mt-8 text-center text-xs lg:hidden">
-            <p className="text-ink-500">
+          <div className="mt-8 flex flex-col items-center gap-1 text-center text-xs lg:hidden">
+            <span className="mb-1 grid h-9 w-9 place-items-center rounded-lg bg-white p-1 ring-1 ring-black/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={COLLEGE.logo} alt="" className="h-full w-full object-contain" />
+            </span>
+            <p className="text-[10px] font-bold uppercase tracking-wide text-[#b3401d]">
+              {COLLEGE.trust}
+            </p>
+            <p className="text-sm font-extrabold uppercase tracking-tight text-[#5c1310]">
               {COLLEGE.name}, {COLLEGE.city}
             </p>
-            <BuiltBy className="mt-1.5 text-[13px]" />
+            <BuiltBy className="mt-0.5 text-[13px]" />
           </div>
         </div>
       </section>

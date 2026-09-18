@@ -48,10 +48,10 @@ export default function PublicNav() {
                 key={tab.href}
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition sm:text-[15px] ${
+                className={`inline-flex items-center gap-1.5 rounded-sm border px-3.5 py-2 text-sm font-bold uppercase tracking-wide transition sm:text-[13px] ${
                   active
-                    ? "bg-ink-900 text-white"
-                    : "bg-black/6 text-ink-700 hover:bg-black/10"
+                    ? "border-[#5c1310] bg-[#5c1310] text-white shadow-sm"
+                    : "border-black/15 bg-white text-[#5c1310] hover:bg-[#5c1310]/8"
                 }`}
               >
                 <Icon className="h-4.5 w-4.5" />

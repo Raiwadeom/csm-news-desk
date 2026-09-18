@@ -33,11 +33,11 @@ export default function PublicCollectionsPage() {
         </p>
       )}
 
-      <div className="mb-5">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">
+      <div className="mb-5 border-l-4 border-[#5c1310] pl-3">
+        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#5c1310] sm:text-3xl">
           Collections
         </h1>
-        <p className="mt-1 text-sm text-ink-500">
+        <p className="mt-1 text-sm text-ink-600">
           Cuttings grouped by event. Open one to see everything in it — every
           cutting is in the main feed as well.
         </p>

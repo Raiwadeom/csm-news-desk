@@ -13,11 +13,8 @@ export default function BoardCard({ board, stats, href, onEdit }) {
   const count = stats?.count || 0;
 
   return (
-    <div className="group">
-      <Link
-        href={href}
-        className="block overflow-hidden rounded-2xl bg-black/5 ring-brand-500/40 transition group-hover:brightness-[0.97] focus:outline-none focus-visible:ring-4"
-      >
+    <div className="group overflow-hidden rounded-md border border-black/12 bg-white shadow-sm transition group-hover:brightness-[0.99]">
+      <Link href={href} className="block ring-brand-500/40 focus:outline-none focus-visible:ring-4">
         {/* Cover tiles are positioned absolutely inside fixed-ratio boxes -
             a plain grid would let each image's intrinsic height stretch its
             row and spill out of the card. */}
@@ -28,7 +25,7 @@ export default function BoardCard({ board, stats, href, onEdit }) {
         </div>
       </Link>
 
-      <div className="mt-2 flex items-start gap-1.5 px-0.5">
+      <div className="flex items-start gap-1.5 border-t border-black/8 px-2.5 py-2">
         <div className="min-w-0 flex-1">
           <Link
             href={href}
@@ -36,9 +33,13 @@ export default function BoardCard({ board, stats, href, onEdit }) {
           >
             {board.name}
           </Link>
-          <p className="truncate text-[13px] text-ink-500">
-            {count} {count === 1 ? "pin" : "pins"}
-            {board.description ? ` · ${board.description}` : ""}
+          <p className="mt-0.5 truncate">
+            <span className="rounded-sm border border-[#5c1310]/25 bg-[#5c1310]/5 px-1.5 py-0.5 text-[10.5px] font-semibold text-[#5c1310]">
+              {count} {count === 1 ? "pin" : "pins"}
+            </span>
+            {board.description ? (
+              <span className="ml-1.5 text-[13px] text-ink-500">{board.description}</span>
+            ) : null}
           </p>
         </div>
         {onEdit && (

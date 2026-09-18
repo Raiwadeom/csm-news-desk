@@ -28,7 +28,7 @@ export default function PinCard({ post, onOpen, boardsById, readOnly = false }) 
   }
 
   return (
-    <figure className="group animate-pop">
+    <figure className="group animate-pop overflow-hidden rounded-md border border-black/12 bg-white shadow-sm">
       <div
         role="button"
         tabIndex={0}
@@ -39,7 +39,7 @@ export default function PinCard({ post, onOpen, boardsById, readOnly = false }) 
             onOpen(post);
           }
         }}
-        className="relative w-full cursor-zoom-in overflow-hidden rounded-2xl bg-black/5 outline-none ring-brand-500/40 focus-visible:ring-4"
+        className="relative w-full cursor-zoom-in overflow-hidden bg-black/5 outline-none ring-brand-500/40 focus-visible:ring-4"
         style={{ aspectRatio: ratio }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -95,18 +95,22 @@ export default function PinCard({ post, onOpen, boardsById, readOnly = false }) 
       </div>
 
       {(post.title || inBoards.length > 0 || post.newsDate) && (
-        <figcaption className="px-1 pt-2">
+        <figcaption className="border-t border-black/8 px-2.5 py-2">
           {post.title && (
             <p className="line-clamp-2 text-[13.5px] font-semibold leading-snug text-ink-900">
               {post.title}
             </p>
           )}
           {(inBoards.length > 0 || post.newsDate) && (
-            <p className="mt-1 flex items-center gap-2 truncate text-[12px] text-ink-500">
-              {post.newsDate && <span className="shrink-0">{formatNewsDate(post.newsDate)}</span>}
+            <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              {post.newsDate && (
+                <span className="shrink-0 text-[11px] font-medium text-ink-500">
+                  {formatNewsDate(post.newsDate)}
+                </span>
+              )}
               {inBoards.length > 0 && (
-                <span className="flex min-w-0 items-center gap-1 truncate">
-                  <IconFolder className="h-3.5 w-3.5 shrink-0" />
+                <span className="flex min-w-0 items-center gap-1 truncate rounded-sm border border-[#5c1310]/25 bg-[#5c1310]/5 px-1.5 py-0.5 text-[10.5px] font-semibold text-[#5c1310]">
+                  <IconFolder className="h-3 w-3 shrink-0" />
                   {inBoards.join(", ")}
                 </span>
               )}
