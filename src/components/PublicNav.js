@@ -36,7 +36,7 @@ export default function PublicNav() {
       : "Search cuttings, dates, events…";
 
   return (
-    <div className="border-b border-black/6">
+    <div className="sticky top-0 z-50 border-b border-black/6 bg-white/92 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1800px] flex-col gap-2.5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
         <nav className="flex shrink-0 gap-1.5" aria-label="Archive views">
           {TABS.map((tab) => {
