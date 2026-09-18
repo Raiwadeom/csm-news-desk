@@ -34,12 +34,24 @@ export default function PublicLayout({ children }) {
         </main>
 
         <footer className="mt-auto border-t border-black/6 px-4 py-7">
-          <div className="mx-auto flex max-w-[1800px] flex-col items-center gap-1.5 text-center text-xs">
-            <p className="text-ink-500">
-              {COLLEGE.name}, {COLLEGE.city}
-            </p>
-            <VisitorCounter className="text-[11px]" />
-            <BuiltBy className="text-[13px]" />
+          {/*
+            The centered credit lines and the visitor pill compete for the
+            same row on wide screens, so this is a 3-column grid with the
+            pill pinned to its own right-hand column instead of stacked
+            between the other two lines. Below sm it collapses to one
+            centered column, pill last.
+          */}
+          <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-center gap-3 text-center text-xs sm:grid-cols-[1fr_auto_1fr]">
+            <div className="hidden sm:block" aria-hidden="true" />
+            <div className="flex flex-col items-center gap-1.5">
+              <p className="text-ink-500">
+                {COLLEGE.name}, {COLLEGE.city}
+              </p>
+              <BuiltBy className="text-[13px]" />
+            </div>
+            <div className="flex justify-center sm:justify-end">
+              <VisitorCounter className="text-[11px]" />
+            </div>
           </div>
         </footer>
       </div>
