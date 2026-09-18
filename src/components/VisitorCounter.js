@@ -6,9 +6,11 @@ import { isFirebaseConfigured } from "@/lib/config";
 import { IconEye } from "./Icons";
 
 /**
- * A small pill in the footer showing the site's running visit count. Ticks
- * the shared tally once on mount (each page load counts as a visit) and
- * then just watches the live total, so every open tab stays in sync.
+ * The footer's visit counter, styled like the digital odometer widget on
+ * government and college sites - a labelled card with each digit in its
+ * own dark LED tile, rather than a plain number. Ticks the shared tally
+ * once on mount (each page load counts as a visit) and then just watches
+ * the live total, so every open tab stays in sync.
  */
 export default function VisitorCounter({ className = "" }) {
   const [count, setCount] = useState(null);
@@ -21,13 +23,28 @@ export default function VisitorCounter({ className = "" }) {
 
   if (count === null) return null;
 
+  const digits = String(count).padStart(6, "0").split("");
+
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-black/[0.03] px-3 py-1 text-ink-600 ${className}`}
+    <div
+      className={`inline-flex items-center gap-2 rounded-md border border-black/15 bg-white px-2.5 py-1.5 shadow-sm ${className}`}
     >
-      <IconEye className="h-3.5 w-3.5 shrink-0 text-ink-500" />
-      <span className="font-semibold tabular-nums">{count.toLocaleString()}</span>
-      <span className="text-ink-500">{count === 1 ? "visit" : "visits"}</span>
-    </span>
+      <IconEye className="h-4 w-4 shrink-0 text-brand-700" />
+      <span className="text-[10px] font-bold uppercase leading-tight tracking-wider text-ink-700">
+        Total
+        <br />
+        Visitors
+      </span>
+      <div className="flex gap-[2px] rounded bg-ink-900 p-1">
+        {digits.map((digit, i) => (
+          <span
+            key={i}
+            className="flex h-4 w-3 items-center justify-center font-mono text-[11px] font-bold leading-none text-amber-400"
+          >
+            {digit}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }

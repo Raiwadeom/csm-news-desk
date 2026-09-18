@@ -35,21 +35,25 @@ export default function PublicLayout({ children }) {
 
         <footer className="mt-auto border-t border-black/6 px-4 py-7">
           {/*
-            On a phone this is a two-item row - credit lines on the left,
-            the visitor pill pinned to the right via justify-between. From
-            sm up it switches to a 3-column grid (spacer / credit / pill)
-            so the credit lines can sit dead-center with the pill still on
-            the right, instead of the pill fighting them for the same line.
+            The counter card is wide (label + six LED digits), so it can't
+            share a row with the full college name on a phone without
+            squeezing it into a ragged 3-line wrap. On a phone the credit
+            text gets its own full-width centered row, with the counter on
+            a second row pinned right. From sm up it switches to a
+            3-column grid (spacer / credit / counter) putting them back on
+            one line, credit dead-center, counter still on the right.
           */}
-          <div className="mx-auto flex max-w-[1800px] items-start justify-between gap-3 text-xs sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:text-center">
+          <div className="mx-auto flex max-w-[1800px] flex-col gap-3 text-xs sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center">
             <div className="hidden sm:block" aria-hidden="true" />
-            <div className="flex min-w-0 flex-1 flex-col items-start gap-1.5 text-left sm:flex-initial sm:items-center sm:text-center">
+            <div className="flex flex-col items-center gap-1.5 text-center">
               <p className="text-ink-500">
                 {COLLEGE.name}, {COLLEGE.city}
               </p>
               <BuiltBy className="text-[13px]" />
             </div>
-            <VisitorCounter className="shrink-0 text-[11px] sm:justify-self-end" />
+            <div className="flex justify-end">
+              <VisitorCounter className="text-[11px]" />
+            </div>
           </div>
         </footer>
       </div>
