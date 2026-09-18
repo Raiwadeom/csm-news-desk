@@ -3,6 +3,7 @@
 import PublicHeader from "@/components/PublicHeader";
 import PublicNav from "@/components/PublicNav";
 import BuiltBy from "@/components/BuiltBy";
+import VisitorCounter from "@/components/VisitorCounter";
 import { AppDataProvider } from "@/lib/app-context";
 import { COLLEGE } from "@/lib/config";
 
@@ -37,6 +38,7 @@ export default function PublicLayout({ children }) {
             <p className="text-ink-500">
               {COLLEGE.name}, {COLLEGE.city}
             </p>
+            <VisitorCounter className="text-[11px]" />
             <BuiltBy className="text-[13px]" />
           </div>
         </footer>

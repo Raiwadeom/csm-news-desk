@@ -21,6 +21,7 @@ import {
   arrayUnion,
   arrayRemove,
   writeBatch,
+  increment,
 } from "firebase/firestore";
 
 import { getDb } from "./firebase";
@@ -150,4 +151,19 @@ export async function readProfile(uid) {
   if (!uid) return null;
   const snap = await getDoc(doc(db(), "admins", uid));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+
+/* ─────────────────────────── visitors ──────────────────────────── */
+
+export function subscribeVisitorCount(cb) {
+  return onSnapshot(
+    doc(db(), "meta", "visitors"),
+    (snap) => cb(snap.exists() ? snap.data().count || 0 : 0),
+    () => cb(0)
+  );
+}
+
+/** Ticks the site-wide visitor tally by one. Safe to call on every page load. */
+export async function registerVisit() {
+  await setDoc(doc(db(), "meta", "visitors"), { count: increment(1) }, { merge: true });
 }

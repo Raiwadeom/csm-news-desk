@@ -39,6 +39,15 @@ service cloud.firestore {
       allow write: if signedIn() && request.auth.uid == uid;
     }
 
+    // Site-wide visitor tally shown in the public footer. Anyone may bump
+    // it, but only by exactly one at a time - never set it to an arbitrary
+    // number.
+    match /meta/visitors {
+      allow read: if true;
+      allow create: if request.resource.data.count == 1;
+      allow update: if request.resource.data.count == resource.data.count + 1;
+    }
+
     // Everything else is closed.
     match /{document=**} {
       allow read, write: if false;
