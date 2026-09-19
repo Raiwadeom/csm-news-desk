@@ -37,10 +37,6 @@ export default function PublicCollectionsPage() {
         <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#5c1310] sm:text-3xl">
           Collections
         </h1>
-        <p className="mt-1 text-sm text-ink-600">
-          Cuttings grouped by event. Open one to see everything in it — every
-          cutting is in the main feed as well.
-        </p>
       </div>
 
       {query.trim() && ready && visible.length > 0 && (
