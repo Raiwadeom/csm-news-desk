@@ -27,9 +27,13 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
   const [editingDate, setEditingDate] = useState(false);
   const [dateDraft, setDateDraft] = useState("");
   const [savingDate, setSavingDate] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
+  const [savingTitle, setSavingTitle] = useState(false);
 
   useEffect(() => {
     setEditingDate(false);
+    setEditingTitle(false);
   }, [post?.id]);
 
   const isOpen = Boolean(post);
@@ -64,6 +68,29 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
   function startEditDate() {
     setDateDraft(post.newsDate || "");
     setEditingDate(true);
+  }
+
+  function startEditTitle() {
+    setTitleDraft(post.title || "");
+    setEditingTitle(true);
+  }
+
+  async function handleSaveTitle(e) {
+    e?.preventDefault();
+    const next = titleDraft.trim();
+    if (next === (post.title || "")) {
+      setEditingTitle(false);
+      return;
+    }
+    setSavingTitle(true);
+    try {
+      await updatePost(post.id, { title: next });
+      toast("Cutting renamed.");
+      setEditingTitle(false);
+    } catch (err) {
+      toastError(err.message || "Could not rename the cutting.");
+    }
+    setSavingTitle(false);
   }
 
   async function handleSaveDate() {
@@ -112,9 +139,60 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
 
         <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-t border-black/6 p-5 pb-safe sm:w-80 sm:border-l sm:border-t-0 sm:pb-5">
           <div>
-            <h2 className="text-lg font-bold leading-snug tracking-tight text-ink-900">
-              {post.title || "Untitled cutting"}
-            </h2>
+            {editingTitle ? (
+              <form onSubmit={handleSaveTitle} className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.stopPropagation();
+                      setEditingTitle(false);
+                    }
+                  }}
+                  maxLength={140}
+                  autoFocus
+                  placeholder="Untitled cutting"
+                  aria-label="Cutting title"
+                  className="min-w-0 flex-1 rounded border border-black/12 bg-white px-2 py-1.5 text-base font-bold text-ink-900 outline-none focus:border-brand-500"
+                />
+                <button
+                  type="submit"
+                  disabled={savingTitle}
+                  aria-label="Save title"
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-60"
+                >
+                  {savingTitle ? <Spinner className="h-4 w-4" /> : <IconCheck className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingTitle(false)}
+                  disabled={savingTitle}
+                  aria-label="Cancel"
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink-500 transition hover:bg-black/6"
+                >
+                  <IconClose className="h-4 w-4" />
+                </button>
+              </form>
+            ) : (
+              <div className="flex items-start gap-1">
+                <h2 className="min-w-0 flex-1 break-words text-lg font-bold leading-snug tracking-tight text-ink-900">
+                  {post.title || "Untitled cutting"}
+                </h2>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={startEditTitle}
+                    aria-label="Rename cutting"
+                    title="Rename"
+                    className="mt-0.5 shrink-0 rounded-full p-1.5 text-ink-500 transition hover:bg-black/6 hover:text-ink-900"
+                  >
+                    <IconEdit className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            )}
             {post.note && (
               <p className="mt-2 text-sm leading-relaxed text-ink-700">{post.note}</p>
             )}
