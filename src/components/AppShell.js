@@ -15,6 +15,7 @@ import {
   IconFolder,
   IconChevronDown,
   IconClose,
+  IconEye,
 } from "./Icons";
 import { useAuth } from "@/lib/auth";
 import { useApp } from "@/lib/app-context";
@@ -106,6 +107,14 @@ export default function AppShell({ children }) {
                 {item.label}
               </Link>
             ))}
+            {/* The public main feed - where visitors see every pin. */}
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[15px] font-semibold text-ink-700 transition hover:bg-black/5"
+            >
+              <IconEye className="h-4.5 w-4.5" />
+              Back to archive
+            </Link>
           </nav>
 
           {/* search */}
@@ -163,6 +172,13 @@ export default function AppShell({ children }) {
               icon={<IconUser className="h-4.5 w-4.5" />}
             >
               Profile &amp; settings
+            </MenuItem>
+            <MenuItem
+              as={Link}
+              href="/"
+              icon={<IconEye className="h-4.5 w-4.5" />}
+            >
+              Back to archive
             </MenuItem>
             <MenuItem
               as={Link}
