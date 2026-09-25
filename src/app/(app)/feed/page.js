@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import PinBrowser from "@/components/PinBrowser";
+import ScrollRail from "@/components/ScrollRail";
 import EmptyState from "@/components/EmptyState";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import { Button } from "@/components/ui";
@@ -54,7 +55,7 @@ export default function FeedPage() {
 
       {/* filter rail */}
       {boards.length > 0 && (
-        <div className="no-scrollbar -mx-3 mb-4 flex gap-2 overflow-x-auto px-3 pb-1 sm:-mx-5 sm:px-5">
+        <ScrollRail className="-mx-3 mb-4 sm:-mx-5">
           <Chip active={filter === "all"} onClick={() => setFilter("all")}>
             All cuttings
           </Chip>
@@ -67,7 +68,7 @@ export default function FeedPage() {
               {board.name}
             </Chip>
           ))}
-        </div>
+        </ScrollRail>
       )}
 
       {/* publication-date range */}
