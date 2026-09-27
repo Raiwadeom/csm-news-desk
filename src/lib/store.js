@@ -71,8 +71,11 @@ export async function deletePost(post, idToken) {
   if (post.publicId) {
     fetch("/api/cloudinary/destroy", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ publicId: post.publicId, idToken }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken || ""}`,
+      },
+      body: JSON.stringify({ publicId: post.publicId }),
     }).catch(() => {});
   }
 }

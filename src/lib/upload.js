@@ -1,6 +1,7 @@
 "use client";
 
 import { cloudinaryCloudName, isCloudinaryConfigured } from "./config";
+import { getFirebaseAuth } from "./firebase";
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -28,15 +29,19 @@ export async function uploadImage(file, { folder = "csm-news", onProgress } = {}
     );
   }
 
+  const idToken = await getFirebaseAuth()?.currentUser?.getIdToken();
   const signRes = await fetch("/api/cloudinary/sign", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken || ""}`,
+    },
     body: JSON.stringify({ folder }),
   });
   if (!signRes.ok) {
     throw new Error("Could not start the upload. Check the Cloudinary keys.");
   }
-  const { signature, timestamp, apiKey } = await signRes.json();
+  const { signature, timestamp, apiKey, allowedFormats } = await signRes.json();
 
   const form = new FormData();
   form.append("file", file);
@@ -44,6 +49,7 @@ export async function uploadImage(file, { folder = "csm-news", onProgress } = {}
   form.append("timestamp", timestamp);
   form.append("signature", signature);
   form.append("folder", folder);
+  form.append("allowed_formats", allowedFormats);
 
   const result = await new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();

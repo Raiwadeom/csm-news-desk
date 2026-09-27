@@ -19,7 +19,7 @@ import {
 
 import { getFirebaseAuth } from "./firebase";
 import { isFirebaseConfigured } from "./config";
-import { subscribeProfile, saveProfile, readProfile } from "./store";
+import { subscribeProfile, readProfile } from "./store";
 
 const AuthContext = createContext(null);
 
@@ -49,24 +49,21 @@ export function AuthProvider({ children }) {
     return subscribeProfile(user.uid, setProfile);
   }, [user]);
 
-  /* ── first sign-in creates a starter profile ──────────────────── */
+  /* ── only accounts with an admins/{uid} doc may stay signed in ── */
+  // Admin docs are created by hand in the Firebase console. Anyone else who
+  // manages to hold a Firebase session (e.g. an account minted through the
+  // public Auth API) is signed straight back out.
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
+      let isAdmin = false;
       try {
-        const existing = await readProfile(user.uid);
-        if (cancelled || existing) return;
-        await saveProfile(user.uid, {
-          name: user.email?.split("@")[0] || "Administrator",
-          role: "Administrator",
-          email: user.email || "",
-          photoUrl: "",
-          photoPublicId: "",
-        });
+        isAdmin = Boolean(await readProfile(user.uid));
       } catch {
-        // A missing profile is not fatal - the admin can fill it in later.
+        // permission denied - not an admin
       }
+      if (!cancelled && !isAdmin) await fbSignOut(getFirebaseAuth());
     })();
     return () => {
       cancelled = true;
@@ -77,6 +74,16 @@ export function AuthProvider({ children }) {
     const auth = getFirebaseAuth();
     await setPersistence(auth, browserLocalPersistence);
     const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
+    let isAdmin = false;
+    try {
+      isAdmin = Boolean(await readProfile(cred.user.uid));
+    } catch {
+      // permission denied - not an admin
+    }
+    if (!isAdmin) {
+      await fbSignOut(auth);
+      throw new Error("This account is not an administrator.");
+    }
     return { uid: cred.user.uid, email: cred.user.email };
   }, []);
 

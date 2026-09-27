@@ -57,8 +57,11 @@ export default function ProfilePage() {
         const idToken = await getIdToken();
         fetch("/api/cloudinary/destroy", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ publicId: profile.photoPublicId, idToken }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken || ""}`,
+          },
+          body: JSON.stringify({ publicId: profile.photoPublicId }),
         }).catch(() => {});
       }
       await saveProfile(user.uid, { photoUrl: "", photoPublicId: "" });

@@ -2,9 +2,11 @@ rules_version = '2';
 
 // The archive itself is public read - anyone visiting the site can browse
 // the cuttings (posts) and the collections they are grouped into (boards).
-// Admin profiles and every write stay behind sign-in. Admin accounts are
-// created by hand in the Firebase console - there is no sign-up screen in
-// the app.
+//
+// Being signed in is NOT enough to change anything: the Firebase web api key
+// is public, so anyone can mint an account through the Auth REST API. Only a
+// user whose uid has a document under /admins counts as an admin, and those
+// documents can only be created by hand in the Firebase console.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -12,40 +14,66 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function shortString(value, max) {
+      return value is string && value.size() <= max;
+    }
+
+    function validPost(data) {
+      return data.imageUrl is string
+        && data.imageUrl.matches('https://res[.]cloudinary[.]com/.*')
+        && data.imageUrl.size() <= 500
+        && (!('title' in data) || shortString(data.title, 300))
+        && (!('note' in data) || shortString(data.note, 5000))
+        && (!('source' in data) || shortString(data.source, 200))
+        && (!('boardIds' in data) || (data.boardIds is list && data.boardIds.size() <= 100));
+    }
+
+    function validBoard(data) {
+      return data.name is string
+        && data.name.size() > 0
+        && data.name.size() <= 60
+        && (!('description' in data) || shortString(data.description, 2000));
+    }
+
     // Newspaper cuttings - readable by everyone, writable only by admins.
     match /posts/{postId} {
       allow read: if true;
-      allow create: if signedIn()
-                    && request.resource.data.imageUrl is string
-                    && request.resource.data.imageUrl.size() > 0;
-      allow update, delete: if signedIn();
+      allow create, update: if isAdmin() && validPost(request.resource.data);
+      allow delete: if isAdmin();
     }
 
-    // Collections / boards - readable by everyone so the public archive can
-    // offer a Collections tab and search by event name; writable by admins.
+    // Collections / boards - readable by everyone, writable only by admins.
     match /boards/{boardId} {
       allow read: if true;
-      allow create: if signedIn()
-                    && request.resource.data.name is string
-                    && request.resource.data.name.size() > 0
-                    && request.resource.data.name.size() <= 60;
-      allow update, delete: if signedIn();
+      allow create, update: if isAdmin() && validBoard(request.resource.data);
+      allow delete: if isAdmin();
     }
 
-    // Admin profiles: every admin can see who the others are, but only the
-    // owner may edit their own name, role and photo.
+    // Admin profiles. Creating or deleting one is console-only - that is
+    // what grants or revokes admin rights. An admin may edit their own card.
     match /admins/{uid} {
-      allow read: if signedIn();
-      allow write: if signedIn() && request.auth.uid == uid;
+      allow read: if isAdmin();
+      allow update: if isAdmin()
+                    && request.auth.uid == uid
+                    && (!('name' in request.resource.data) || shortString(request.resource.data.name, 80))
+                    && (!('role' in request.resource.data) || shortString(request.resource.data.role, 80));
+      allow create, delete: if false;
     }
 
     // Site-wide visitor tally shown in the public footer. Anyone may bump
     // it, but only by exactly one at a time - never set it to an arbitrary
-    // number.
+    // number, and never add other fields.
     match /meta/visitors {
       allow read: if true;
-      allow create: if request.resource.data.count == 1;
-      allow update: if request.resource.data.count == resource.data.count + 1;
+      allow create: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count == 1;
+      allow update: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count == resource.data.count + 1;
     }
 
     // Everything else is closed.
