@@ -11,7 +11,7 @@ import BuiltBy from "@/components/BuiltBy";
 const FIREBASE_ERRORS = {
   "auth/invalid-credential": "Incorrect email or password.",
   "auth/invalid-email": "That does not look like a valid email address.",
-  "auth/user-not-found": "No admin account exists for this email.",
+  "auth/user-not-found": "Incorrect email or password.",
   "auth/wrong-password": "Incorrect email or password.",
   "auth/too-many-requests": "Too many attempts. Please wait a minute and try again.",
   "auth/network-request-failed": "Network problem — check your internet connection.",
@@ -52,7 +52,7 @@ export default function LoginPage() {
       // null user and bounce straight back here.
       await signIn(email, password);
     } catch (err) {
-      setError(FIREBASE_ERRORS[err?.code] || err?.message || "Could not sign you in.");
+      setError(FIREBASE_ERRORS[err?.code] || "Incorrect email or password.");
       setBusy(false);
     }
   }
@@ -67,9 +67,9 @@ export default function LoginPage() {
     setResetting(true);
     try {
       await resetPassword(email);
-      setNotice(`A reset link has been sent to ${email.trim()}. Check your inbox and spam folder.`);
+      setNotice(`If ${email.trim()} is an admin account, a reset link is on its way. Check your inbox and spam folder.`);
     } catch (err) {
-      setError(FIREBASE_ERRORS[err?.code] || err?.message || "Could not send the reset email.");
+      setError(FIREBASE_ERRORS[err?.code] || "Could not send the reset email.");
     }
     setResetting(false);
   }

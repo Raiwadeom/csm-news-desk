@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
     }
     if (!isAdmin) {
       await fbSignOut(auth);
-      throw new Error("This account is not an administrator.");
+      throw new Error("Incorrect email or password.");
     }
     return { uid: cred.user.uid, email: cred.user.email };
   }, []);

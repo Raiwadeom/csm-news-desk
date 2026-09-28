@@ -23,6 +23,12 @@ service cloud.firestore {
       return value is string && value.size() <= max;
     }
 
+    // Only the fields the app itself writes - nothing smuggled in alongside.
+    function postKeysOk(data) {
+      return data.keys().hasOnly(['title', 'note', 'imageUrl', 'publicId', 'width', 'height',
+        'boardIds', 'ownerUid', 'ownerName', 'source', 'newsDate', 'createdAt']);
+    }
+
     function validPost(data) {
       return data.imageUrl is string
         && data.imageUrl.matches('https://res[.]cloudinary[.]com/.*')
@@ -30,7 +36,18 @@ service cloud.firestore {
         && (!('title' in data) || shortString(data.title, 300))
         && (!('note' in data) || shortString(data.note, 5000))
         && (!('source' in data) || shortString(data.source, 200))
+        && (!('ownerName' in data) || shortString(data.ownerName, 80))
+        && (!('newsDate' in data) || data.newsDate == null || shortString(data.newsDate, 10))
         && (!('boardIds' in data) || (data.boardIds is list && data.boardIds.size() <= 100));
+    }
+
+    function boardKeysOk(data) {
+      return data.keys().hasOnly(['name', 'description', 'ownerUid', 'createdAt']);
+    }
+
+    // Edits may only touch these fields; everything else is fixed at upload.
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
     }
 
     function validBoard(data) {
@@ -43,14 +60,24 @@ service cloud.firestore {
     // Newspaper cuttings - readable by everyone, writable only by admins.
     match /posts/{postId} {
       allow read: if true;
-      allow create, update: if isAdmin() && validPost(request.resource.data);
+      allow create: if isAdmin()
+                    && postKeysOk(request.resource.data)
+                    && validPost(request.resource.data);
+      allow update: if isAdmin()
+                    && onlyChanges(['title', 'note', 'source', 'newsDate', 'boardIds'])
+                    && validPost(request.resource.data);
       allow delete: if isAdmin();
     }
 
     // Collections / boards - readable by everyone, writable only by admins.
     match /boards/{boardId} {
       allow read: if true;
-      allow create, update: if isAdmin() && validBoard(request.resource.data);
+      allow create: if isAdmin()
+                    && boardKeysOk(request.resource.data)
+                    && validBoard(request.resource.data);
+      allow update: if isAdmin()
+                    && onlyChanges(['name', 'description'])
+                    && validBoard(request.resource.data);
       allow delete: if isAdmin();
     }
 
@@ -60,6 +87,11 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow update: if isAdmin()
                     && request.auth.uid == uid
+                    && onlyChanges(['name', 'role', 'photoUrl', 'photoPublicId'])
+                    && (!('photoUrl' in request.resource.data)
+                        || request.resource.data.photoUrl == ''
+                        || (shortString(request.resource.data.photoUrl, 500)
+                            && request.resource.data.photoUrl.matches('https://res[.]cloudinary[.]com/.*')))
                     && (!('name' in request.resource.data) || shortString(request.resource.data.name, 80))
                     && (!('role' in request.resource.data) || shortString(request.resource.data.role, 80));
       allow create, delete: if false;
