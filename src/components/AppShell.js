@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Avatar from "./Avatar";
+import BackToTop from "./BackToTop";
 import { Dropdown, MenuItem, Button } from "./ui";
 import {
   IconSearch,
@@ -207,6 +208,9 @@ export default function AppShell({ children }) {
       <main className="mx-auto max-w-[1800px] px-3 pb-28 pt-4 sm:px-5 md:pb-10">
         {children}
       </main>
+
+      {/* Lifted above the phone bottom bar, back down from md up. */}
+      <BackToTop className="bottom-24 md:bottom-5" />
 
       {/* ── Mobile bottom bar ────────────────────────────────────── */}
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-black/8 bg-white/95 backdrop-blur-md pb-safe md:hidden">

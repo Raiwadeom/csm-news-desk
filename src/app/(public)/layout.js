@@ -3,6 +3,7 @@
 import PublicHeader from "@/components/PublicHeader";
 import PublicNav from "@/components/PublicNav";
 import BuiltBy from "@/components/BuiltBy";
+import BackToTop from "@/components/BackToTop";
 import VisitorCounter from "@/components/VisitorCounter";
 import { AppDataProvider } from "@/lib/app-context";
 import { COLLEGE } from "@/lib/config";
@@ -63,6 +64,8 @@ export default function PublicLayout({ children }) {
             </div>
           </div>
         </footer>
+
+        <BackToTop />
       </div>
     </AppDataProvider>
   );

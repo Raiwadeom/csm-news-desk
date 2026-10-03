@@ -34,6 +34,31 @@ body {
   overscroll-behavior-y: none;
 }
 
+/*
+  Tailwind v4 dropped the hand cursor from buttons, so everything clickable
+  showed a plain arrow. Put it back for every control. In the base layer so
+  a utility such as cursor-grab on a single element still wins.
+*/
+@layer base {
+  button,
+  [role="button"],
+  select,
+  summary,
+  label:has(input[type="checkbox"], input[type="radio"]),
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
+}
+
 /* Hide scrollbars on horizontal chip rails but keep them scrollable */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
