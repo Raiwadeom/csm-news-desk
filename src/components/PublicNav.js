@@ -42,7 +42,9 @@ export default function PublicNav() {
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const active =
-              tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
+              tab.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(tab.href);
             return (
               <Link
                 key={tab.href}
@@ -50,8 +52,8 @@ export default function PublicNav() {
                 aria-current={active ? "page" : undefined}
                 className={`inline-flex items-center gap-1.5 rounded-sm border px-3.5 py-2 text-sm font-bold uppercase tracking-wide transition sm:text-[13px] ${
                   active
-                    ? "border-[#5c1310] bg-[#5c1310] text-white shadow-sm"
-                    : "border-black/15 bg-white text-[#5c1310] hover:bg-[#5c1310]/8"
+                    ? "border-[#b91c1c] bg-[#b91c1c] text-white shadow-sm"
+                    : "border-black/15 bg-white text-[#b91c1c] hover:bg-[#b91c1c]/8"
                 }`}
               >
                 <Icon className="h-4.5 w-4.5" />
@@ -61,26 +63,29 @@ export default function PublicNav() {
           })}
         </nav>
 
-        <div className="relative min-w-0 sm:max-w-md sm:flex-1">
-          <IconSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-ink-500" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={placeholder}
-            aria-label={placeholder}
-            className="w-full rounded-full border border-transparent bg-black/6 py-2.5 pl-10 pr-9 text-[15px] outline-none transition placeholder:text-ink-500 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/12"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              aria-label="Clear search"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-500 transition hover:bg-black/8 hover:text-ink-900"
-            >
-              <IconClose className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        {/* The main feed has its own full-width search under its heading. */}
+        {pathname !== "/" && (
+          <div className="relative min-w-0 sm:max-w-md sm:flex-1">
+            <IconSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-ink-500" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={placeholder}
+              aria-label={placeholder}
+              className="w-full rounded-full border border-transparent bg-black/6 py-2.5 pl-10 pr-9 text-[15px] outline-none transition placeholder:text-ink-500 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/12"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-500 transition hover:bg-black/8 hover:text-ink-900"
+              >
+                <IconClose className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

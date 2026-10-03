@@ -1,19 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import PinBrowser from "@/components/PinBrowser";
-import ScrollRail from "@/components/ScrollRail";
+import ArchiveBrowser, { ArchiveSearch } from "@/components/ArchiveBrowser";
 import EmptyState from "@/components/EmptyState";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import { Button } from "@/components/ui";
-import { IconUpload, IconFolder, IconImage, IconAlert, IconClose } from "@/components/Icons";
+import { IconUpload, IconFolder, IconAlert, IconClose } from "@/components/Icons";
 import { useApp } from "@/lib/app-context";
 import { filterPosts, filterByDateRange } from "@/lib/search";
 
+/**
+ * The admin side of the archive. It browses exactly like the public page -
+ * the same search box, filter sidebar and sort - plus a publication-date
+ * range, and every cutting can be edited or deleted from its lightbox.
+ */
 export default function FeedPage() {
-  const { posts, boards, ready, dataError, query, openUpload, openCreateBoard } =
+  const { posts, boards, ready, dataError, query, setQuery, openUpload, openCreateBoard } =
     useApp();
-  const [filter, setFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -24,14 +27,10 @@ export default function FeedPage() {
 
   const hasRange = Boolean(dateFrom || dateTo);
 
-  const visible = useMemo(() => {
-    const inBoard =
-      filter === "all"
-        ? posts
-        : posts.filter((post) => (post.boardIds || []).includes(filter));
-    const inRange = filterByDateRange(inBoard, dateFrom, dateTo);
-    return filterPosts(inRange, query, boardsById);
-  }, [posts, filter, dateFrom, dateTo, query, boardsById]);
+  const searched = useMemo(
+    () => filterPosts(filterByDateRange(posts, dateFrom, dateTo), query, boardsById),
+    [posts, dateFrom, dateTo, query, boardsById]
+  );
 
   const undated = useMemo(
     () => (hasRange ? posts.filter((p) => !p.newsDate).length : 0),
@@ -39,10 +38,17 @@ export default function FeedPage() {
   );
 
   const isEmpty = ready && posts.length === 0;
-  const noMatches = ready && posts.length > 0 && visible.length === 0;
 
   return (
     <div>
+      <div className="mb-4 border-l-4 border-[#b91c1c] pl-3">
+        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#1f2937] sm:text-3xl">
+          Newspaper Archive
+        </h1>
+      </div>
+
+      <ArchiveSearch query={query} setQuery={setQuery} className="mb-3" />
+
       {dataError && (
         <p
           role="alert"
@@ -53,33 +59,15 @@ export default function FeedPage() {
         </p>
       )}
 
-      {/* filter rail */}
-      {boards.length > 0 && (
-        <ScrollRail className="-mx-3 mb-4 sm:-mx-5">
-          <Chip active={filter === "all"} onClick={() => setFilter("all")}>
-            All cuttings
-          </Chip>
-          {boards.map((board) => (
-            <Chip
-              key={board.id}
-              active={filter === board.id}
-              onClick={() => setFilter(board.id)}
-            >
-              {board.name}
-            </Chip>
-          ))}
-        </ScrollRail>
-      )}
-
       {/* publication-date range */}
-      <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-2">
+      <div className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-2">
         <span className="text-sm font-medium text-ink-700">Published between</span>
         <input
           type="date"
           value={dateFrom}
           onChange={(e) => setDateFrom(e.target.value)}
           aria-label="Published on or after"
-          className="rounded-lg border border-black/12 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500"
+          className="rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-sm shadow-sm outline-none focus:border-[#b91c1c]"
         />
         <span className="text-sm text-ink-500">and</span>
         <input
@@ -87,7 +75,7 @@ export default function FeedPage() {
           value={dateTo}
           onChange={(e) => setDateTo(e.target.value)}
           aria-label="Published on or before"
-          className="rounded-lg border border-black/12 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-brand-500"
+          className="rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-sm shadow-sm outline-none focus:border-[#b91c1c]"
         />
         {hasRange && (
           <button
@@ -96,38 +84,28 @@ export default function FeedPage() {
               setDateFrom("");
               setDateTo("");
             }}
-            className="inline-flex items-center gap-1 rounded-full bg-black/6 px-2.5 py-1.5 text-xs font-semibold text-ink-700 transition hover:bg-black/10"
+            className="inline-flex items-center gap-1 rounded-sm bg-[#fee2e2] px-2.5 py-1.5 text-xs font-semibold text-[#b91c1c] transition hover:bg-[#fecaca]"
           >
             <IconClose className="h-3.5 w-3.5" />
             Clear dates
           </button>
         )}
-        {hasRange && ready && (
+        {hasRange && ready && undated > 0 && (
           <span className="text-xs text-ink-500">
-            {visible.length} in range
-            {undated > 0 && ` · ${undated} cutting${undated === 1 ? "" : "s"} have no date set`}
+            {undated} cutting{undated === 1 ? " has" : "s have"} no date set
           </span>
         )}
       </div>
 
-      {query && ready && (
-        <p className="mb-3 text-sm text-ink-500">
-          {visible.length} result{visible.length === 1 ? "" : "s"} for{" "}
-          <span className="font-semibold text-ink-900">“{query}”</span>
-        </p>
-      )}
-
       {!ready && <SkeletonGrid />}
 
-      {ready && visible.length > 0 && (
-        <PinBrowser posts={visible} boardsById={boardsById} />
-      )}
-
-      {noMatches && (
-        <EmptyState
-          icon={<IconImage className="h-7 w-7" />}
-          title="Nothing matches that search"
-          body="Try a different headline, newspaper name or collection."
+      {ready && posts.length > 0 && (
+        <ArchiveBrowser
+          posts={searched}
+          total={posts.length}
+          boards={boards}
+          boardsById={boardsById}
+          query={query}
         />
       )}
 
@@ -151,19 +129,5 @@ export default function FeedPage() {
         />
       )}
     </div>
-  );
-}
-
-function Chip({ active, children, ...rest }) {
-  return (
-    <button
-      type="button"
-      {...rest}
-      className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
-        active ? "bg-ink-900 text-white" : "bg-black/6 text-ink-700 hover:bg-black/10"
-      }`}
-    >
-      {children}
-    </button>
   );
 }

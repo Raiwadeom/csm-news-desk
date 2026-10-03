@@ -13,7 +13,7 @@ import { thumbUrl } from "@/lib/images";
  * The grid plus everything that hangs off a pin: full-screen view and the
  * delete confirmation. Shared by the main feed and each collection page.
  */
-export default function PinBrowser({ posts, boardsById, readOnly = false }) {
+export default function PinBrowser({ posts, boardsById, readOnly = false, columns }) {
   const { getIdToken } = useAuth();
   const { toast, error: toastError } = useToast();
 
@@ -55,6 +55,7 @@ export default function PinBrowser({ posts, boardsById, readOnly = false }) {
         boardsById={boardsById}
         onOpen={setActive}
         readOnly={readOnly}
+        columns={columns}
       />
 
       <Lightbox

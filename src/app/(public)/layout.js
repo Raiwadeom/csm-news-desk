@@ -18,7 +18,7 @@ import { COLLEGE } from "@/lib/config";
 export default function PublicLayout({ children }) {
   return (
     <AppDataProvider>
-      <div className="flex min-h-dvh flex-col bg-white">
+      <div className="flex min-h-dvh flex-col bg-[#f3f4f6]">
         <PublicHeader />
         <PublicNav />
         {/*
@@ -33,7 +33,7 @@ export default function PublicLayout({ children }) {
           {children}
         </main>
 
-        <footer className="mt-auto border-t border-black/6 px-4 py-7">
+        <footer className="mt-auto bg-[#1f2937] px-4 py-7 text-white">
           {/*
             The counter card is wide (label + six LED digits), so it can't
             share a row with the full college name on a phone without
@@ -50,13 +50,13 @@ export default function PublicLayout({ children }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={COLLEGE.logo} alt="" className="h-full w-full object-contain" />
               </span>
-              <p className="text-[10px] font-bold uppercase tracking-wide text-[#b3401d]">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[#fca5a5]">
                 {COLLEGE.trust}
               </p>
-              <p className="text-sm font-extrabold uppercase tracking-tight text-[#5c1310]">
+              <p className="text-sm font-extrabold uppercase tracking-tight text-white">
                 {COLLEGE.name}, {COLLEGE.city}
               </p>
-              <BuiltBy className="mt-0.5 text-[13px]" />
+              <BuiltBy tone="dark" className="mt-0.5 text-[13px]" />
             </div>
             <div className="flex justify-end">
               <VisitorCounter className="text-[11px]" />

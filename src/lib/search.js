@@ -127,3 +127,79 @@ export function filterBoards(boards, query) {
   if (tokens.length === 0) return boards;
   return boards.filter((board) => matchesAll(boardHaystack(board), tokens));
 }
+
+// ---- Sidebar filters -------------------------------------------------------
+//
+// The checkbox panel on the archive narrows by three facets: the year the
+// story ran, the newspaper it ran in and the collections it sits in. Ticks
+// inside one group widen (2023 *or* 2024), ticks across groups narrow
+// (2024 *and* Lokmat), which is how every shop filter behaves.
+
+// Cuttings uploaded without a news date get a year option of their own, so
+// they can be found (or hidden) like any other year.
+export const UNDATED = "undated";
+
+export function postYear(post) {
+  return /^\d{4}/.test(post.newsDate || "") ? post.newsDate.slice(0, 4) : UNDATED;
+}
+
+// "Lokmat", "lokmat " and "LOKMAT" are one paper, typed three ways.
+export function newspaperKey(post) {
+  return String(post.source || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+const FACET_TESTS = {
+  years: (post, picked) => picked.has(postYear(post)),
+  papers: (post, picked) => picked.has(newspaperKey(post)),
+  boards: (post, picked) => (post.boardIds || []).some((id) => picked.has(id)),
+};
+
+/**
+ * Cuttings passing every ticked group. `skip` leaves one group out, which is
+ * what each group's own counts are worked out against - so ticking 2024
+ * still shows how many 2023 cuttings ticking that would add.
+ */
+export function filterByFacets(posts, filters, skip) {
+  const active = Object.entries(FACET_TESTS).filter(
+    ([key]) => key !== skip && filters[key]?.size > 0
+  );
+  if (active.length === 0) return posts;
+  return posts.filter((post) => active.every(([key, test]) => test(post, filters[key])));
+}
+
+// ---- Sort order ------------------------------------------------------------
+
+export const SORT_OPTIONS = [
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "added", label: "Recently added" },
+  { value: "title", label: "Title A–Z" },
+];
+
+const addedAt = (post) => post.createdAt?.toMillis?.() ?? Number.MAX_SAFE_INTEGER;
+
+/**
+ * Cuttings in the chosen order. "Newest"/"oldest" go by the date the story
+ * ran, with undated cuttings always at the end so they never crowd out the
+ * dated ones; ties fall back to upload order.
+ */
+export function sortPosts(posts, sort) {
+  const byAdded = (a, b) => addedAt(b) - addedAt(a);
+  const rows = [...posts];
+  if (sort === "added") return rows.sort(byAdded);
+  if (sort === "title") {
+    return rows.sort(
+      (a, b) =>
+        (a.title || "").localeCompare(b.title || "", "en", { numeric: true, sensitivity: "base" }) ||
+        byAdded(a, b)
+    );
+  }
+  const dir = sort === "oldest" ? 1 : -1;
+  return rows.sort((a, b) => {
+    if (!a.newsDate || !b.newsDate) {
+      if (a.newsDate !== b.newsDate) return a.newsDate ? -1 : 1;
+      return byAdded(a, b);
+    }
+    return dir * a.newsDate.localeCompare(b.newsDate) || byAdded(a, b);
+  });
+}

@@ -242,7 +242,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
                       </button>
                     </div>
                   ) : (
-                    <span className="flex items-center gap-1 font-bold text-[#5c1310]">
+                    <span className="flex items-center gap-1 font-bold text-[#b91c1c]">
                       {post.newsDate ? formatNewsDate(post.newsDate) : "Not set"}
                       {!readOnly && (
                         <button
@@ -266,7 +266,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
               {boardNames.map((name) => (
                 <span
                   key={name}
-                  className="inline-flex items-center gap-1.5 rounded-sm border border-[#5c1310]/25 bg-[#5c1310]/5 px-2.5 py-1 text-xs font-semibold text-[#5c1310]"
+                  className="inline-flex items-center gap-1.5 rounded-sm bg-[#fee2e2] px-2.5 py-1 text-xs font-semibold text-[#b91c1c]"
                 >
                   <IconFolder className="h-3.5 w-3.5" />
                   {name}

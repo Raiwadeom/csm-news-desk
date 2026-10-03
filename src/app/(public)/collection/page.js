@@ -33,8 +33,8 @@ export default function PublicCollectionsPage() {
         </p>
       )}
 
-      <div className="mb-5 border-l-4 border-[#5c1310] pl-3">
-        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#5c1310] sm:text-3xl">
+      <div className="mb-5 border-l-4 border-[#b91c1c] pl-3">
+        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#1f2937] sm:text-3xl">
           Collections
         </h1>
       </div>

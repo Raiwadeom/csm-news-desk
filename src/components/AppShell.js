@@ -73,7 +73,7 @@ export default function AppShell({ children }) {
   );
 
   return (
-    <div className="min-h-dvh bg-white">
+    <div className="min-h-dvh bg-[#f3f4f6]">
       {/* ── Header ───────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-black/6 bg-white/92 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1800px] items-center gap-2 px-3 sm:gap-3 sm:px-5">
@@ -117,27 +117,31 @@ export default function AppShell({ children }) {
             </Link>
           </nav>
 
-          {/* search */}
-          <div className="relative min-w-0 flex-1">
-            <IconSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-ink-500" />
-            <input
-              value={query}
-              onChange={(e) => onSearch(e.target.value)}
-              placeholder="Search cuttings…"
-              aria-label="Search cuttings"
-              className="w-full rounded-full border border-transparent bg-black/6 py-2.5 pl-10 pr-9 text-[15px] outline-none transition placeholder:text-ink-500 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/12"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                aria-label="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-500 transition hover:bg-black/8 hover:text-ink-900"
-              >
-                <IconClose className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+          {/* search - the feed has its own full-width one under its heading */}
+          {pathname === "/feed" ? (
+            <div className="min-w-0 flex-1" />
+          ) : (
+            <div className="relative min-w-0 flex-1">
+              <IconSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-ink-500" />
+              <input
+                value={query}
+                onChange={(e) => onSearch(e.target.value)}
+                placeholder="Search cuttings…"
+                aria-label="Search cuttings"
+                className="w-full rounded-full border border-transparent bg-black/6 py-2.5 pl-10 pr-9 text-[15px] outline-none transition placeholder:text-ink-500 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/12"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-500 transition hover:bg-black/8 hover:text-ink-900"
+                >
+                  <IconClose className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          )}
 
           <CreateMenu className="hidden sm:block" />
 

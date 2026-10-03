@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
-import PinBrowser from "@/components/PinBrowser";
+import ArchiveBrowser, { ArchiveSearch } from "@/components/ArchiveBrowser";
 import EmptyState from "@/components/EmptyState";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import BoardCard from "@/components/BoardCard";
@@ -17,14 +16,16 @@ import { filterPosts, filterBoards } from "@/lib/search";
  * "shivjayanti 2026" narrows to the one year.
  */
 export default function PublicFeedPage() {
-  const { posts, boards, boardStats, ready, dataError, query } = useApp();
+  const { posts, boards, boardStats, ready, dataError, query, setQuery } = useApp();
 
   const boardsById = useMemo(
     () => Object.fromEntries(boards.map((b) => [b.id, b])),
     [boards]
   );
 
-  const visible = useMemo(
+  // The search runs first; the sidebar's ticks then narrow what it left, so
+  // the panel's counts always describe the current search.
+  const searched = useMemo(
     () => filterPosts(posts, query, boardsById),
     [posts, query, boardsById]
   );
@@ -37,15 +38,16 @@ export default function PublicFeedPage() {
   );
 
   const isEmpty = ready && posts.length === 0;
-  const noMatches = ready && posts.length > 0 && visible.length === 0;
 
   return (
     <div>
-      <div className="mb-5 border-l-4 border-[#5c1310] pl-3">
-        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#5c1310] sm:text-3xl">
+      <div className="mb-4 border-l-4 border-[#b91c1c] pl-3">
+        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#1f2937] sm:text-3xl">
           Newspaper Archive
         </h1>
       </div>
+
+      <ArchiveSearch query={query} setQuery={setQuery} className="mb-6" />
 
       {dataError && (
         <p
@@ -76,24 +78,16 @@ export default function PublicFeedPage() {
         </section>
       )}
 
-      {query.trim() && ready && visible.length > 0 && (
-        <p className="mb-3 text-sm text-ink-500">
-          {visible.length} cutting{visible.length === 1 ? "" : "s"} for{" "}
-          <span className="font-semibold text-ink-900">“{query.trim()}”</span>
-        </p>
-      )}
-
       {!ready && <SkeletonGrid />}
 
-      {ready && visible.length > 0 && (
-        <PinBrowser posts={visible} boardsById={boardsById} readOnly />
-      )}
-
-      {noMatches && (
-        <EmptyState
-          icon={<IconImage className="h-7 w-7" />}
-          title="Nothing matches that search"
-          body="Try a headline, a newspaper name, the name of a collection such as “Shivjayanti”, or the date it was published — 2/2/2021 works, and so does 2 Feb 2021."
+      {ready && posts.length > 0 && (
+        <ArchiveBrowser
+          posts={searched}
+          total={posts.length}
+          boards={boards}
+          boardsById={boardsById}
+          query={query}
+          readOnly
         />
       )}
 
