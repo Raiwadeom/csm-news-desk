@@ -15,6 +15,7 @@ import {
   IconImage,
   IconFolder,
   IconChevronDown,
+  IconChevronLeft,
   IconClose,
   IconEye,
 } from "./Icons";
@@ -108,12 +109,16 @@ export default function AppShell({ children }) {
                 {item.label}
               </Link>
             ))}
-            {/* The public main feed - where visitors see every pin. */}
+            {/*
+              The public main feed - where visitors see every pin. Set apart
+              from the admin tabs as a button, since it leaves the admin side.
+            */}
+            <span className="mx-2 h-6 w-px bg-black/12" aria-hidden="true" />
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[15px] font-semibold text-ink-700 transition hover:bg-black/5"
+              className="group inline-flex items-center gap-1.5 rounded-md border border-[#b91c1c]/30 bg-[#fee2e2]/60 py-1.5 pl-2.5 pr-3.5 text-sm font-semibold text-[#b91c1c] shadow-sm transition hover:border-[#b91c1c]/60 hover:bg-[#fee2e2]"
             >
-              <IconEye className="h-4.5 w-4.5" />
+              <IconChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
               Back to archive
             </Link>
           </nav>
