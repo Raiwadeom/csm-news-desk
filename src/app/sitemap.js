@@ -1,32 +1,12 @@
-import { SITE_URL, firebaseConfig } from "@/lib/config";
-
-/**
- * Every collection's id, read straight from Firestore's REST API.
- *
- * Collections are public read, so this needs no admin credentials - the same
- * browser api key works. Any failure falls back to an empty list rather than
- * breaking the sitemap: the two fixed pages below are what matter most, and
- * every collection is reachable by crawling from /collection anyway.
- */
-async function collectionIds() {
-  const { projectId, apiKey } = firebaseConfig;
-  if (!projectId || !apiKey) return [];
-  try {
-    const res = await fetch(
-      `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/boards?pageSize=300&key=${apiKey}`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return (data.documents || []).map((doc) => doc.name.split("/").pop());
-  } catch {
-    return [];
-  }
-}
+import { SITE_URL } from "@/lib/config";
+import { fetchPublicBoards } from "@/lib/public-boards";
 
 export default async function sitemap() {
   const lastModified = new Date();
-  const ids = await collectionIds();
+  // Any failure gives an empty list rather than a broken sitemap: the two
+  // fixed pages matter most, and every collection is reachable from
+  // /collection anyway.
+  const ids = (await fetchPublicBoards()).map((b) => b.id);
 
   return [
     { url: `${SITE_URL}/`, lastModified, changeFrequency: "daily", priority: 1 },
