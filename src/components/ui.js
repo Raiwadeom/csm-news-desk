@@ -70,7 +70,7 @@ export function MenuItem({ icon, children, onClick, tone = "default", as = "butt
       {...rest}
       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[15px] font-medium transition ${
         tone === "danger"
-          ? "text-brand-700 hover:bg-brand-50"
+          ? "text-danger-700 hover:bg-danger-50"
           : "text-ink-900 hover:bg-black/5"
       }`}
     >
@@ -177,7 +177,7 @@ export function Button({
     dark: "bg-ink-900 text-white hover:bg-black focus:ring-black/20",
     soft: "bg-black/6 text-ink-900 hover:bg-black/10 focus:ring-black/10",
     ghost: "text-ink-700 hover:bg-black/5 focus:ring-black/10",
-    danger: "bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500/25",
+    danger: "bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-600/25",
     outline:
       "bg-white text-ink-900 ring-1 ring-black/12 hover:bg-black/4 focus:ring-black/10",
   };

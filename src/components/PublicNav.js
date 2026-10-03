@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconSearch, IconClose, IconHome, IconGrid } from "./Icons";
-import { useApp } from "@/lib/app-context";
+import { IconHome, IconGrid } from "./Icons";
 
 const TABS = [
   { href: "/", label: "Main feed", icon: IconHome },
@@ -12,29 +11,10 @@ const TABS = [
 
 /**
  * The two ways into the public archive - everything at once, or grouped by
- * collection - with the search box that belongs to whichever one is open.
+ * collection. Each page carries its own full-width search under its heading.
  */
 export default function PublicNav() {
   const pathname = usePathname();
-  const { query, setQuery } = useApp();
-
-  const onCollections = pathname.startsWith("/collection");
-  const insideOneCollection = onCollections && pathname !== "/collection";
-
-  // The phrase is deliberately kept when the visitor switches view. Both
-  // views search the same vocabulary - a cutting is searched by the names
-  // of the collections it sits in - so "shivjayanti" typed on the
-  // Collections tab still means something on the feed, and the other way
-  // round.
-
-  // Kept short enough not to be clipped in the box at phone width; the
-  // empty states carry the longer "here is what you can type" copy.
-  const placeholder = insideOneCollection
-    ? "Search in this collection…"
-    : onCollections
-      ? "Search collections…"
-      : "Search cuttings, dates, events…";
-
   return (
     <div className="sticky top-0 z-50 border-b border-black/6 bg-white/92 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1800px] flex-col gap-2.5 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5">
@@ -52,8 +32,8 @@ export default function PublicNav() {
                 aria-current={active ? "page" : undefined}
                 className={`inline-flex items-center gap-1.5 rounded-sm border px-3.5 py-2 text-sm font-bold uppercase tracking-wide transition sm:text-[13px] ${
                   active
-                    ? "border-[#b91c1c] bg-[#b91c1c] text-white shadow-sm"
-                    : "border-black/15 bg-white text-[#b91c1c] hover:bg-[#b91c1c]/8"
+                    ? "border-brand-700 bg-brand-700 text-white shadow-sm"
+                    : "border-black/15 bg-white text-brand-700 hover:bg-brand-700/8"
                 }`}
               >
                 <Icon className="h-4.5 w-4.5" />
@@ -62,30 +42,6 @@ export default function PublicNav() {
             );
           })}
         </nav>
-
-        {/* The main feed has its own full-width search under its heading. */}
-        {pathname !== "/" && (
-          <div className="relative min-w-0 sm:max-w-md sm:flex-1">
-            <IconSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-ink-500" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={placeholder}
-              aria-label={placeholder}
-              className="w-full rounded-full border border-transparent bg-black/6 py-2.5 pl-10 pr-9 text-[15px] outline-none transition placeholder:text-ink-500 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/12"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                aria-label="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-500 transition hover:bg-black/8 hover:text-ink-900"
-              >
-                <IconClose className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

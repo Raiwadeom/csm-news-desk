@@ -34,7 +34,7 @@ export default function BoardCard({ board, stats, href, onEdit }) {
             {board.name}
           </Link>
           <p className="mt-0.5 truncate">
-            <span className="rounded-sm bg-[#fee2e2] px-1.5 py-0.5 text-[10.5px] font-semibold text-[#b91c1c]">
+            <span className="rounded-sm bg-brand-100 px-1.5 py-0.5 text-[10.5px] font-semibold text-brand-700">
               {count} {count === 1 ? "pin" : "pins"}
             </span>
             {board.description ? (

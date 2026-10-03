@@ -9,14 +9,20 @@ import { filterByFacets, sortPosts, SORT_OPTIONS } from "@/lib/search";
 
 // Narrower columns than the full-width grid, since the filter sidebar takes
 // a column of its own from lg up.
-const GRID_COLUMNS = "columns-2 sm:columns-3 md:columns-4 lg:columns-3 xl:columns-4 2xl:columns-5";
+const GRID_COLUMNS =
+  "columns-2 sm:columns-3 md:columns-4 lg:columns-3 xl:columns-4 2xl:columns-5";
 
 /**
  * The full-width search box under a page heading. It searches as you type;
  * the button is there for people who expect one, and drops the phone
  * keyboard so the results are in view.
  */
-export function ArchiveSearch({ query, setQuery, className = "" }) {
+export function ArchiveSearch({
+  query,
+  setQuery,
+  placeholder = "Search by headline, date, newspaper or event",
+  className = "",
+}) {
   function submit(e) {
     e.preventDefault();
     e.currentTarget.querySelector("input")?.blur();
@@ -30,9 +36,9 @@ export function ArchiveSearch({ query, setQuery, className = "" }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by headline, date, newspaper or event"
-          aria-label="Search cuttings"
-          className="h-11 w-full rounded-md border border-black/15 bg-white pl-10 pr-9 text-[15px] shadow-sm outline-none transition placeholder:text-ink-500 focus:border-[#b91c1c] focus:ring-4 focus:ring-[#b91c1c]/10 [&::-webkit-search-cancel-button]:hidden"
+          placeholder={placeholder}
+          aria-label={placeholder}
+          className="h-11 w-full rounded-md border border-black/15 bg-white pl-10 pr-9 text-[15px] shadow-sm outline-none transition placeholder:text-ink-500 focus:border-brand-700 focus:ring-4 focus:ring-brand-700/10 [&::-webkit-search-cancel-button]:hidden"
         />
         {query && (
           <button
@@ -47,7 +53,7 @@ export function ArchiveSearch({ query, setQuery, className = "" }) {
       </div>
       <button
         type="submit"
-        className="h-11 shrink-0 rounded-md bg-[#b91c1c] px-5 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#991b1b] sm:px-8"
+        className="h-11 shrink-0 rounded-md bg-brand-700 px-5 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-brand-800 sm:px-8"
       >
         Search
       </button>
@@ -61,7 +67,15 @@ export function ArchiveSearch({ query, setQuery, className = "" }) {
  * the same way. `posts` is what the search (and any other page-level
  * narrowing) has already left; `total` is the whole archive, for the count.
  */
-export default function ArchiveBrowser({ posts, total, boards, boardsById, query, readOnly = false }) {
+export default function ArchiveBrowser({
+  posts,
+  total,
+  boards,
+  boardsById,
+  query,
+  readOnly = false,
+  showCollections = true,
+}) {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sort, setSort] = useState("newest");
@@ -69,11 +83,8 @@ export default function ArchiveBrowser({ posts, total, boards, boardsById, query
 
   const visible = useMemo(
     () => sortPosts(filterByFacets(posts, filters), sort),
-    [posts, filters, sort]
+    [posts, filters, sort],
   );
-
-  const narrowed = visible.length !== total;
-  const phrase = query.trim();
 
   return (
     <div className="lg:grid lg:grid-cols-[230px_minmax(0,1fr)] lg:items-start lg:gap-6">
@@ -88,7 +99,7 @@ export default function ArchiveBrowser({ posts, total, boards, boardsById, query
         <span>
           Filter cuttings
           {activeFilters > 0 && (
-            <span className="ml-2 rounded-sm bg-[#b91c1c] px-1.5 py-0.5 text-[11px] text-white">
+            <span className="ml-2 rounded-sm bg-brand-700 px-1.5 py-0.5 text-[11px] text-white">
               {activeFilters}
             </span>
           )}
@@ -102,43 +113,24 @@ export default function ArchiveBrowser({ posts, total, boards, boardsById, query
         id="filter-panel"
         className={`${filtersOpen ? "block" : "hidden"} mb-4 lg:sticky lg:top-20 lg:mb-0 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overflow-x-hidden`}
       >
-        <FilterPanel posts={posts} boards={boards} filters={filters} onChange={setFilters} />
+        <FilterPanel
+          posts={posts}
+          boards={showCollections ? boards : []}
+          filters={filters}
+          onChange={setFilters}
+        />
       </div>
 
       <div className="min-w-0">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <p className="text-sm text-ink-500">
-            {narrowed ? (
-              <>
-                Showing <span className="font-semibold text-ink-900">{visible.length}</span> of{" "}
-                {total} cuttings
-                {phrase && (
-                  <>
-                    {" "}for <span className="font-semibold text-ink-900">“{phrase}”</span>
-                  </>
-                )}
-              </>
-            ) : (
-              <>
-                Showing all <span className="font-semibold text-ink-900">{total}</span> cuttings
-              </>
-            )}
-          </p>
-          <label className="flex items-center gap-2 text-sm text-ink-700">
-            Sort by
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="h-9 cursor-pointer rounded-md border border-black/15 bg-white px-2.5 text-sm font-semibold text-ink-900 shadow-sm outline-none focus:border-[#b91c1c] focus:ring-4 focus:ring-[#b91c1c]/10"
-            >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        <ResultsBar
+          shown={visible.length}
+          total={total}
+          noun="cuttings"
+          query={query}
+          sort={sort}
+          setSort={setSort}
+          options={SORT_OPTIONS}
+        />
 
         {visible.length > 0 && (
           <PinBrowser
@@ -152,7 +144,11 @@ export default function ArchiveBrowser({ posts, total, boards, boardsById, query
         {visible.length === 0 && (
           <EmptyState
             icon={<IconImage className="h-7 w-7" />}
-            title={activeFilters > 0 ? "No cuttings match these filters" : "Nothing matches that search"}
+            title={
+              activeFilters > 0
+                ? "No cuttings match these filters"
+                : "Nothing matches that search"
+            }
             body={
               activeFilters > 0
                 ? "Untick a year, newspaper or collection in the filter panel, or clear them all."
@@ -161,6 +157,70 @@ export default function ArchiveBrowser({ posts, total, boards, boardsById, query
           />
         )}
       </div>
+    </div>
+  );
+}
+
+/** The heading every archive page opens with: a red bar and a slate title. */
+export function PageHeading({ children, className = "mb-4" }) {
+  return (
+    <div className={`border-l-4 border-highlight pl-3 ${className}`}>
+      <h1 className="text-2xl font-extrabold uppercase tracking-tight text-ink-900 sm:text-3xl">
+        {children}
+      </h1>
+    </div>
+  );
+}
+
+/** "Showing 12 of 40 cuttings for “x”" on the left, "Sort by" on the right. */
+export function ResultsBar({
+  shown,
+  total,
+  noun,
+  query = "",
+  sort,
+  setSort,
+  options,
+}) {
+  const phrase = query.trim();
+  // One row at every width: the count shrinks and truncates on a phone
+  // ("314 cuttings") while the sort menu keeps its size on the right,
+  // instead of the two wrapping onto ragged separate lines.
+  return (
+    <div className="mb-3 flex items-center justify-between gap-3">
+      <p className="min-w-0 truncate text-sm text-ink-500" title={phrase ? `“${phrase}”` : undefined}>
+        {shown !== total ? (
+          <>
+            <span className="hidden sm:inline">Showing </span>
+            <span className="font-semibold text-ink-900">{shown}</span> of {total} {noun}
+            {phrase && (
+              <>
+                {" "}for <span className="font-semibold text-ink-900">“{phrase}”</span>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <span className="hidden sm:inline">Showing all </span>
+            <span className="font-semibold text-ink-900">{total}</span> {noun}
+          </>
+        )}
+      </p>
+      <label className="flex shrink-0 items-center gap-2 text-sm text-ink-700">
+        <span className="hidden sm:inline">Sort by</span>
+        <span className="sr-only sm:hidden">Sort by</span>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="h-9 cursor-pointer rounded-md border border-black/15 bg-white pl-2.5 pr-1.5 text-[13px] font-semibold text-ink-900 shadow-sm outline-none focus:border-brand-700 focus:ring-4 focus:ring-brand-700/10 sm:px-2.5 sm:text-sm"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }

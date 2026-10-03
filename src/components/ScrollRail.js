@@ -149,7 +149,7 @@ export default function ScrollRail({ children, className = "" }) {
             <div
               onPointerDown={onThumbPointerDown}
               style={{ width: `${thumbWidth}%`, left: `${thumbLeft}%` }}
-              className="absolute inset-y-0 cursor-grab touch-none rounded-full bg-[#b91c1c]/60 transition-colors hover:bg-[#b91c1c] active:cursor-grabbing"
+              className="absolute inset-y-0 cursor-grab touch-none rounded-full bg-brand-700/60 transition-colors hover:bg-brand-700 active:cursor-grabbing"
             />
           </div>
         </div>

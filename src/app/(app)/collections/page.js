@@ -3,45 +3,65 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
-import PinBrowser from "@/components/PinBrowser";
+import ArchiveBrowser, {
+  ArchiveSearch,
+  PageHeading,
+  ResultsBar,
+} from "@/components/ArchiveBrowser";
 import EmptyState from "@/components/EmptyState";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import BoardCard from "@/components/BoardCard";
 import { Dropdown, MenuItem, Button } from "@/components/ui";
-import { IconPlus, IconChevronDown, IconImage, IconFolder } from "@/components/Icons";
+import {
+  IconPlus,
+  IconChevronDown,
+  IconImage,
+  IconFolder,
+} from "@/components/Icons";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth";
-import { filterPosts, filterBoards } from "@/lib/search";
+import {
+  filterPosts,
+  filterBoards,
+  sortBoards,
+  BOARD_SORT_OPTIONS,
+} from "@/lib/search";
 
 export default function CollectionsPage() {
-  const { posts, boards, boardStats, ready, query, openUpload, openCreateBoard, openEditBoard } =
-    useApp();
+  const {
+    posts,
+    boards,
+    boardStats,
+    ready,
+    query,
+    setQuery,
+    openUpload,
+    openCreateBoard,
+    openEditBoard,
+  } = useApp();
   const { user, profile } = useAuth();
   const [tab, setTab] = useState("boards");
+  const [boardSort, setBoardSort] = useState("newest");
 
   const boardsById = useMemo(
     () => Object.fromEntries(boards.map((b) => [b.id, b])),
-    [boards]
+    [boards],
   );
 
   const visiblePins = useMemo(
     () => filterPosts(posts, query, boardsById),
-    [posts, query, boardsById]
+    [posts, query, boardsById],
   );
-  const visibleBoards = useMemo(() => filterBoards(boards, query), [boards, query]);
+  const visibleBoards = useMemo(
+    () => sortBoards(filterBoards(boards, query), boardSort, boardStats),
+    [boards, query, boardSort, boardStats],
+  );
 
   return (
     <div>
       {/* ── header: title + admin card ───────────────────────────── */}
-      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">
-            Your collections
-          </h1>
-          <p className="mt-1 text-sm text-ink-500">
-            Group newspaper cuttings by event. Every cutting also stays in the main feed.
-          </p>
-        </div>
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <PageHeading className="">Collections</PageHeading>
 
         <Link
           href="/profile"
@@ -59,6 +79,17 @@ export default function CollectionsPage() {
         </Link>
       </div>
 
+      <ArchiveSearch
+        query={query}
+        setQuery={setQuery}
+        placeholder={
+          tab === "boards"
+            ? "Search collections by name or event"
+            : "Search by headline, date, newspaper or event"
+        }
+        className="mb-6"
+      />
+
       {/* ── tabs + create ────────────────────────────────────────── */}
       <div className="mb-5 flex items-center justify-between gap-3 border-b border-black/8">
         <div className="flex gap-1">
@@ -72,12 +103,14 @@ export default function CollectionsPage() {
               onClick={() => setTab(t.id)}
               className={`-mb-px border-b-2 px-3 pb-2.5 pt-1 text-[15px] font-semibold transition sm:px-4 ${
                 tab === t.id
-                  ? "border-ink-900 text-ink-900"
+                  ? "border-brand-700 text-brand-700"
                   : "border-transparent text-ink-500 hover:text-ink-900"
               }`}
             >
               {t.label}
-              <span className="ml-1.5 text-xs font-bold text-ink-500">{t.count}</span>
+              <span className="ml-1.5 text-xs font-bold text-ink-500">
+                {t.count}
+              </span>
             </button>
           ))}
         </div>
@@ -94,10 +127,16 @@ export default function CollectionsPage() {
             </Button>
           )}
         >
-          <MenuItem icon={<IconImage className="h-4.5 w-4.5" />} onClick={() => openUpload()}>
+          <MenuItem
+            icon={<IconImage className="h-4.5 w-4.5" />}
+            onClick={() => openUpload()}
+          >
             Pin
           </MenuItem>
-          <MenuItem icon={<IconFolder className="h-4.5 w-4.5" />} onClick={openCreateBoard}>
+          <MenuItem
+            icon={<IconFolder className="h-4.5 w-4.5" />}
+            onClick={openCreateBoard}
+          >
             Board
           </MenuItem>
         </Dropdown>
@@ -124,44 +163,55 @@ export default function CollectionsPage() {
             }
           />
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {visibleBoards.map((board) => (
-              <BoardCard
-                key={board.id}
-                board={board}
-                stats={boardStats[board.id]}
-                href={`/collections/${board.id}`}
-                onEdit={() => openEditBoard(board)}
-              />
-            ))}
-          </div>
+          <>
+            <ResultsBar
+              shown={visibleBoards.length}
+              total={boards.length}
+              noun="collections"
+              query={query}
+              sort={boardSort}
+              setSort={setBoardSort}
+              options={BOARD_SORT_OPTIONS}
+            />
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {visibleBoards.map((board) => (
+                <BoardCard
+                  key={board.id}
+                  board={board}
+                  stats={boardStats[board.id]}
+                  href={`/collections/${board.id}`}
+                  onEdit={() => openEditBoard(board)}
+                />
+              ))}
+            </div>
+          </>
         ))}
 
       {tab === "pins" && !ready && <SkeletonGrid />}
 
-      {tab === "pins" &&
-        ready &&
-        (visiblePins.length === 0 ? (
-          <EmptyState
-            icon={<IconImage className="h-7 w-7" />}
-            title={query ? "No pins match that search" : "No pins yet"}
-            body={
-              query
-                ? "Try a different headline or newspaper name."
-                : "Upload a newspaper cutting to get started."
-            }
-            actions={
-              !query && (
-                <Button onClick={() => openUpload()}>
-                  <IconPlus className="h-4.5 w-4.5" />
-                  Add a pin
-                </Button>
-              )
-            }
-          />
-        ) : (
-          <PinBrowser posts={visiblePins} boardsById={boardsById} />
-        ))}
+      {tab === "pins" && ready && posts.length === 0 && (
+        <EmptyState
+          icon={<IconImage className="h-7 w-7" />}
+          title="No pins yet"
+          body="Upload a newspaper cutting to get started."
+          actions={
+            <Button onClick={() => openUpload()}>
+              <IconPlus className="h-4.5 w-4.5" />
+              Add a pin
+            </Button>
+          }
+        />
+      )}
+
+      {tab === "pins" && ready && posts.length > 0 && (
+        <ArchiveBrowser
+          posts={visiblePins}
+          total={posts.length}
+          boards={boards}
+          boardsById={boardsById}
+          query={query}
+        />
+      )}
     </div>
   );
 }

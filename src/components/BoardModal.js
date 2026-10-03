@@ -90,7 +90,7 @@ export default function BoardModal({ onDeleted }) {
                 variant="ghost"
                 onClick={() => setConfirmDelete(true)}
                 disabled={busy}
-                className="mr-auto !text-brand-700"
+                className="mr-auto !text-danger-700"
               >
                 <IconTrash className="h-4 w-4" />
                 Delete

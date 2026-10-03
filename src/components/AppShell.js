@@ -75,7 +75,7 @@ export default function AppShell({ children }) {
   );
 
   return (
-    <div className="min-h-dvh bg-[#f3f4f6]">
+    <div className="min-h-dvh bg-page">
       {/* ── Header ───────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-black/6 bg-white/92 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1800px] items-center gap-2 px-3 sm:gap-3 sm:px-5">
@@ -116,15 +116,15 @@ export default function AppShell({ children }) {
             <span className="mx-2 h-6 w-px bg-black/12" aria-hidden="true" />
             <Link
               href="/"
-              className="group inline-flex items-center gap-1.5 rounded-md border border-[#b91c1c]/30 bg-[#fee2e2]/60 py-1.5 pl-2.5 pr-3.5 text-sm font-semibold text-[#b91c1c] shadow-sm transition hover:border-[#b91c1c]/60 hover:bg-[#fee2e2]"
+              className="group inline-flex items-center gap-1.5 rounded-md border border-brand-700/30 bg-brand-100/60 py-1.5 pl-2.5 pr-3.5 text-sm font-semibold text-brand-700 shadow-sm transition hover:border-brand-700/60 hover:bg-brand-100"
             >
               <IconChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
               Back to archive
             </Link>
           </nav>
 
-          {/* search - the feed has its own full-width one under its heading */}
-          {pathname === "/feed" ? (
+          {/* search - the feed and collection pages have their own full-width one */}
+          {filtersHere ? (
             <div className="min-w-0 flex-1" />
           ) : (
             <div className="relative min-w-0 flex-1">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import ArchiveBrowser, { ArchiveSearch } from "@/components/ArchiveBrowser";
+import ArchiveBrowser, { ArchiveSearch, PageHeading } from "@/components/ArchiveBrowser";
 import EmptyState from "@/components/EmptyState";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import { Button } from "@/components/ui";
@@ -41,18 +41,14 @@ export default function FeedPage() {
 
   return (
     <div>
-      <div className="mb-4 border-l-4 border-[#b91c1c] pl-3">
-        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#1f2937] sm:text-3xl">
-          Newspaper Archive
-        </h1>
-      </div>
+      <PageHeading>Newspaper Archive</PageHeading>
 
       <ArchiveSearch query={query} setQuery={setQuery} className="mb-3" />
 
       {dataError && (
         <p
           role="alert"
-          className="mb-4 flex items-start gap-2 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-700"
+          className="mb-4 flex items-start gap-2 rounded-2xl bg-danger-50 px-4 py-3 text-sm text-danger-700"
         >
           <IconAlert className="mt-px h-4.5 w-4.5 shrink-0" />
           <span>{dataError}</span>
@@ -67,7 +63,7 @@ export default function FeedPage() {
           value={dateFrom}
           onChange={(e) => setDateFrom(e.target.value)}
           aria-label="Published on or after"
-          className="rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-sm shadow-sm outline-none focus:border-[#b91c1c]"
+          className="rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-sm shadow-sm outline-none focus:border-brand-700"
         />
         <span className="text-sm text-ink-500">and</span>
         <input
@@ -75,7 +71,7 @@ export default function FeedPage() {
           value={dateTo}
           onChange={(e) => setDateTo(e.target.value)}
           aria-label="Published on or before"
-          className="rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-sm shadow-sm outline-none focus:border-[#b91c1c]"
+          className="rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-sm shadow-sm outline-none focus:border-brand-700"
         />
         {hasRange && (
           <button
@@ -84,7 +80,7 @@ export default function FeedPage() {
               setDateFrom("");
               setDateTo("");
             }}
-            className="inline-flex items-center gap-1 rounded-sm bg-[#fee2e2] px-2.5 py-1.5 text-xs font-semibold text-[#b91c1c] transition hover:bg-[#fecaca]"
+            className="inline-flex items-center gap-1 rounded-sm bg-brand-100 px-2.5 py-1.5 text-xs font-semibold text-brand-700 transition hover:bg-brand-200"
           >
             <IconClose className="h-3.5 w-3.5" />
             Clear dates

@@ -205,7 +205,7 @@ export default function LoginPage() {
             {error && (
               <p
                 role="alert"
-                className="flex items-start gap-2 rounded-xl bg-brand-50 px-3.5 py-3 text-sm text-brand-700"
+                className="flex items-start gap-2 rounded-xl bg-danger-50 px-3.5 py-3 text-sm text-danger-700"
               >
                 <IconAlert className="mt-px h-4.5 w-4.5 shrink-0" />
                 <span>{error}</span>
@@ -238,7 +238,7 @@ export default function LoginPage() {
             <p className="text-[10px] font-bold uppercase tracking-wide text-[#b3401d]">
               {COLLEGE.trust}
             </p>
-            <p className="text-sm font-extrabold uppercase tracking-tight text-[#5c1310]">
+            <p className="text-sm font-extrabold uppercase tracking-tight text-title">
               {COLLEGE.name}, {COLLEGE.city}
             </p>
             <BuiltBy className="mt-0.5 text-[13px]" />

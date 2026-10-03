@@ -1,16 +1,33 @@
 @import "tailwindcss";
 
+/*
+  The site palette. Every accent reads from these tokens: buttons, active
+  tabs, links and chips use the brand scale, heading bars the highlight,
+  and the page and footer have their own. Delete buttons and error
+  messages use the danger scale.
+*/
 @theme {
-  --color-brand-50: #fff1f1;
-  --color-brand-100: #ffdedf;
-  --color-brand-200: #ffc2c4;
-  --color-brand-300: #ff989b;
-  --color-brand-400: #fb5d63;
-  --color-brand-500: #e8323a;
-  --color-brand-600: #d3202a;
-  --color-brand-700: #b01820;
-  --color-brand-800: #91181f;
-  --color-brand-900: #791a20;
+  --color-brand-50: #fef2f2;
+  --color-brand-100: #fee2e2;
+  --color-brand-200: #fecaca;
+  --color-brand-300: #fca5a5;
+  --color-brand-400: #f87171;
+  --color-brand-500: #ef4444;
+  --color-brand-600: #dc2626;
+  --color-brand-700: #b91c1c;
+  --color-brand-800: #991b1b;
+  --color-brand-900: #7f1d1d;
+
+  --color-highlight: #b91c1c;
+  --color-title: #5c1310;
+  --color-page: #f3f4f6;
+  --color-footer: #1f2937;
+  --color-footer-accent: #fca5a5;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-200: #fecaca;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
 
   --color-ink-500: #6b7280;
   --color-ink-700: #374151;

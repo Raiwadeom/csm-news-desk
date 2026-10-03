@@ -242,7 +242,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
                       </button>
                     </div>
                   ) : (
-                    <span className="flex items-center gap-1 font-bold text-[#b91c1c]">
+                    <span className="flex items-center gap-1 font-bold text-brand-700">
                       {post.newsDate ? formatNewsDate(post.newsDate) : "Not set"}
                       {!readOnly && (
                         <button
@@ -266,7 +266,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
               {boardNames.map((name) => (
                 <span
                   key={name}
-                  className="inline-flex items-center gap-1.5 rounded-sm bg-[#fee2e2] px-2.5 py-1 text-xs font-semibold text-[#b91c1c]"
+                  className="inline-flex items-center gap-1.5 rounded-sm bg-brand-100 px-2.5 py-1 text-xs font-semibold text-brand-700"
                 >
                   <IconFolder className="h-3.5 w-3.5" />
                   {name}
@@ -288,7 +288,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
               <button
                 type="button"
                 onClick={() => onDelete(post)}
-                className="flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
+                className="flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-danger-700 transition hover:bg-danger-50"
               >
                 <IconTrash className="h-4.5 w-4.5" />
                 Delete cutting

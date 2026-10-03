@@ -109,7 +109,7 @@ export default function PinCard({ post, onOpen, boardsById, readOnly = false }) 
                 </span>
               )}
               {inBoards.length > 0 && (
-                <span className="flex min-w-0 items-center gap-1 truncate rounded-sm bg-[#fee2e2] px-1.5 py-0.5 text-[10.5px] font-semibold text-[#b91c1c]">
+                <span className="flex min-w-0 items-center gap-1 truncate rounded-sm bg-brand-100 px-1.5 py-0.5 text-[10.5px] font-semibold text-brand-700">
                   <IconFolder className="h-3 w-3 shrink-0" />
                   {inBoards.join(", ")}
                 </span>

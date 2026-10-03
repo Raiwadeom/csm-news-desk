@@ -31,7 +31,7 @@ export default function PublicHeader() {
             <span className="block text-[11px] font-bold text-[#b3401d] sm:text-base">
               {COLLEGE.trust}&apos;s
             </span>
-            <span className="block text-balance text-base font-extrabold leading-tight tracking-tight text-[#5c1310] sm:text-[28px]">
+            <span className="block text-balance text-base font-extrabold leading-tight tracking-tight text-title sm:text-[28px]">
               {COLLEGE.name}, {COLLEGE.city}
             </span>
             <span className="mt-0.5 block text-[10px] font-bold text-[#1b3a8a] sm:text-sm">

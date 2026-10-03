@@ -39,7 +39,7 @@ export function ToastProvider({ children }) {
             role="status"
             className={`animate-pop pointer-events-auto flex max-w-md items-center gap-2.5 rounded-full py-2.5 pl-3.5 pr-2 text-sm font-medium shadow-lg ring-1 ${
               t.tone === "error"
-                ? "bg-white text-brand-700 ring-brand-200"
+                ? "bg-white text-danger-700 ring-danger-200"
                 : "bg-ink-900 text-white ring-black/10"
             }`}
           >

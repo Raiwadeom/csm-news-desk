@@ -3,7 +3,10 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import PinBrowser from "@/components/PinBrowser";
+import ArchiveBrowser, {
+  ArchiveSearch,
+  PageHeading,
+} from "@/components/ArchiveBrowser";
 import EmptyState from "@/components/EmptyState";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import { IconChevronLeft, IconFolder, IconImage } from "@/components/Icons";
@@ -13,22 +16,22 @@ import { filterPosts } from "@/lib/search";
 /** One collection, open to everyone. The search box narrows within it. */
 export default function PublicCollectionPage() {
   const { id } = useParams();
-  const { posts, boards, ready, query } = useApp();
+  const { posts, boards, ready, query, setQuery } = useApp();
 
   const board = boards.find((b) => b.id === id);
 
   const boardsById = useMemo(
     () => Object.fromEntries(boards.map((b) => [b.id, b])),
-    [boards]
+    [boards],
   );
 
   const inBoard = useMemo(
     () => posts.filter((p) => (p.boardIds || []).includes(id)),
-    [posts, id]
+    [posts, id],
   );
   const visible = useMemo(
     () => filterPosts(inBoard, query, boardsById),
-    [inBoard, query, boardsById]
+    [inBoard, query, boardsById],
   );
 
   if (ready && !board) {
@@ -40,7 +43,7 @@ export default function PublicCollectionPage() {
         actions={
           <Link
             href="/collection"
-            className="inline-flex items-center justify-center rounded-full bg-brand-600 px-4 py-2.5 text-[15px] font-semibold text-white transition hover:bg-brand-700"
+            className="inline-flex items-center justify-center rounded-md bg-brand-700 px-4 py-2.5 text-[15px] font-semibold text-white transition hover:bg-brand-800"
           >
             All collections
           </Link>
@@ -53,42 +56,43 @@ export default function PublicCollectionPage() {
     <div>
       <Link
         href="/collection"
-        className="mb-4 inline-flex items-center gap-1.5 rounded-full py-1 pr-3 text-sm font-semibold text-ink-500 transition hover:text-ink-900"
+        className="mb-4 inline-flex items-center gap-1.5 rounded-md py-1 pr-3 text-sm font-semibold text-brand-700 transition hover:text-brand-800"
       >
         <IconChevronLeft className="h-4.5 w-4.5" />
         All collections
       </Link>
 
-      <header className="mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">
-          {board?.name || "…"}
-        </h1>
-        <p className="mt-1 text-sm text-ink-500">
-          {query.trim() && visible.length !== inBoard.length
-            ? `${visible.length} of ${inBoard.length} `
-            : `${inBoard.length} `}
-          {inBoard.length === 1 ? "cutting" : "cuttings"}
-          {board?.description ? ` · ${board.description}` : ""}
-        </p>
-      </header>
+      <PageHeading className="mb-1">{board?.name || "…"}</PageHeading>
+      {board?.description && (
+        <p className="mb-4 pl-4 text-sm text-ink-500">{board.description}</p>
+      )}
+
+      <ArchiveSearch
+        query={query}
+        setQuery={setQuery}
+        placeholder="Search in this collection"
+        className="mb-6 mt-4"
+      />
 
       {!ready && <SkeletonGrid />}
 
-      {ready && visible.length > 0 && (
-        <PinBrowser posts={visible} boardsById={boardsById} readOnly />
+      {ready && inBoard.length > 0 && (
+        <ArchiveBrowser
+          posts={visible}
+          total={inBoard.length}
+          boards={boards}
+          boardsById={boardsById}
+          query={query}
+          readOnly
+          showCollections={false}
+        />
       )}
 
-      {ready && visible.length === 0 && (
+      {ready && inBoard.length === 0 && (
         <EmptyState
           icon={<IconImage className="h-7 w-7" />}
-          title={
-            query.trim() ? "Nothing matches that search here" : "This collection is empty"
-          }
-          body={
-            query.trim()
-              ? "Clear the search box to see everything in this collection."
-              : "Cuttings added to this collection will appear here."
-          }
+          title="This collection is empty"
+          body="Cuttings added to this collection will appear here."
         />
       )}
     </div>

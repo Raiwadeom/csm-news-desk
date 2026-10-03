@@ -1,12 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import EmptyState from "@/components/EmptyState";
 import BoardCard from "@/components/BoardCard";
+import {
+  ArchiveSearch,
+  PageHeading,
+  ResultsBar,
+} from "@/components/ArchiveBrowser";
 import { IconFolder, IconAlert, IconHome } from "@/components/Icons";
 import { useApp } from "@/lib/app-context";
-import { filterBoards } from "@/lib/search";
+import { filterBoards, sortBoards, BOARD_SORT_OPTIONS } from "@/lib/search";
 
 /**
  * The public index of collections. Searching here matches a collection's
@@ -14,36 +19,48 @@ import { filterBoards } from "@/lib/search";
  * "shivjayanti 2026" just the one.
  */
 export default function PublicCollectionsPage() {
-  const { boards, boardStats, ready, dataError, query } = useApp();
+  const { boards, boardStats, ready, dataError, query, setQuery } = useApp();
+  const [sort, setSort] = useState("newest");
 
-  const visible = useMemo(() => filterBoards(boards, query), [boards, query]);
+  const visible = useMemo(
+    () => sortBoards(filterBoards(boards, query), sort, boardStats),
+    [boards, query, sort, boardStats],
+  );
 
   const isEmpty = ready && boards.length === 0;
   const noMatches = ready && boards.length > 0 && visible.length === 0;
 
   return (
     <div>
+      <PageHeading>Collections</PageHeading>
+
+      <ArchiveSearch
+        query={query}
+        setQuery={setQuery}
+        placeholder="Search collections by name or event"
+        className="mb-6"
+      />
+
       {dataError && (
         <p
           role="alert"
-          className="mb-4 flex items-start gap-2 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-700"
+          className="mb-4 flex items-start gap-2 rounded-2xl bg-danger-50 px-4 py-3 text-sm text-danger-700"
         >
           <IconAlert className="mt-px h-4.5 w-4.5 shrink-0" />
           <span>{dataError}</span>
         </p>
       )}
 
-      <div className="mb-5 border-l-4 border-[#b91c1c] pl-3">
-        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#1f2937] sm:text-3xl">
-          Collections
-        </h1>
-      </div>
-
-      {query.trim() && ready && visible.length > 0 && (
-        <p className="mb-3 text-sm text-ink-500">
-          {visible.length} collection{visible.length === 1 ? "" : "s"} for{" "}
-          <span className="font-semibold text-ink-900">“{query.trim()}”</span>
-        </p>
+      {ready && boards.length > 0 && (
+        <ResultsBar
+          shown={visible.length}
+          total={boards.length}
+          noun="collections"
+          query={query}
+          sort={sort}
+          setSort={setSort}
+          options={BOARD_SORT_OPTIONS}
+        />
       )}
 
       {!ready && <SkeletonBoards />}
@@ -69,7 +86,7 @@ export default function PublicCollectionsPage() {
           actions={
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-2.5 text-[15px] font-semibold text-white transition hover:bg-brand-700"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-brand-700 px-4 py-2.5 text-[15px] font-semibold text-white transition hover:bg-brand-800"
             >
               <IconHome className="h-4.5 w-4.5" />
               Search the main feed

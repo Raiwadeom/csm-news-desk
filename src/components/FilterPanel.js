@@ -124,7 +124,7 @@ export default function FilterPanel({
           <button
             type="button"
             onClick={() => onChange(EMPTY_FILTERS)}
-            className="text-xs font-semibold text-[#b91c1c] hover:underline"
+            className="text-xs font-semibold text-brand-700 hover:underline"
           >
             Clear all
           </button>
@@ -173,7 +173,7 @@ function FilterGroup({ group, picked, onToggle, divider }) {
             return (
               <li key={o.value}>
                 <label
-                  className={`flex cursor-pointer items-center gap-2.5 rounded-sm py-1 text-sm hover:text-[#b91c1c] ${
+                  className={`flex cursor-pointer items-center gap-2.5 rounded-sm py-1 text-sm hover:text-brand-700 ${
                     dim ? "text-ink-500/60" : "text-ink-900"
                   }`}
                 >
@@ -181,7 +181,7 @@ function FilterGroup({ group, picked, onToggle, divider }) {
                     type="checkbox"
                     checked={checked}
                     onChange={() => onToggle(o.value)}
-                    className="h-3.5 w-3.5 shrink-0 cursor-pointer accent-[#b91c1c]"
+                    className="h-3.5 w-3.5 shrink-0 cursor-pointer accent-brand-700"
                   />
                   <span className="min-w-0 flex-1 truncate" title={o.label}>
                     {o.label}
@@ -198,7 +198,7 @@ function FilterGroup({ group, picked, onToggle, divider }) {
           <button
             type="button"
             onClick={() => setExpanded((e) => !e)}
-            className="mt-1.5 text-[13px] font-semibold text-[#b91c1c] hover:underline"
+            className="mt-1.5 text-[13px] font-semibold text-brand-700 hover:underline"
           >
             {expanded ? "Show fewer" : group.more}
           </button>

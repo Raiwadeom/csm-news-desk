@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import ArchiveBrowser, { ArchiveSearch } from "@/components/ArchiveBrowser";
+import ArchiveBrowser, { ArchiveSearch, PageHeading } from "@/components/ArchiveBrowser";
 import EmptyState from "@/components/EmptyState";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import BoardCard from "@/components/BoardCard";
@@ -41,18 +41,14 @@ export default function PublicFeedPage() {
 
   return (
     <div>
-      <div className="mb-4 border-l-4 border-[#b91c1c] pl-3">
-        <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#1f2937] sm:text-3xl">
-          Newspaper Archive
-        </h1>
-      </div>
+      <PageHeading>Newspaper Archive</PageHeading>
 
       <ArchiveSearch query={query} setQuery={setQuery} className="mb-6" />
 
       {dataError && (
         <p
           role="alert"
-          className="mb-4 flex items-start gap-2 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-700"
+          className="mb-4 flex items-start gap-2 rounded-2xl bg-danger-50 px-4 py-3 text-sm text-danger-700"
         >
           <IconAlert className="mt-px h-4.5 w-4.5 shrink-0" />
           <span>{dataError}</span>

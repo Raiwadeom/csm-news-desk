@@ -19,7 +19,7 @@ import { COLLEGE } from "@/lib/config";
 export default function PublicLayout({ children }) {
   return (
     <AppDataProvider>
-      <div className="flex min-h-dvh flex-col bg-[#f3f4f6]">
+      <div className="flex min-h-dvh flex-col bg-page">
         <PublicHeader />
         <PublicNav />
         {/*
@@ -34,7 +34,7 @@ export default function PublicLayout({ children }) {
           {children}
         </main>
 
-        <footer className="mt-auto bg-[#1f2937] px-4 py-7 text-white">
+        <footer className="mt-auto bg-footer px-4 py-7 text-white">
           {/*
             The counter card is wide (label + six LED digits), so it can't
             share a row with the full college name on a phone without
@@ -51,7 +51,7 @@ export default function PublicLayout({ children }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={COLLEGE.logo} alt="" className="h-full w-full object-contain" />
               </span>
-              <p className="text-[10px] font-bold uppercase tracking-wide text-[#fca5a5]">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-footer-accent">
                 {COLLEGE.trust}
               </p>
               <p className="text-sm font-extrabold uppercase tracking-tight text-white">

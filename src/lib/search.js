@@ -203,3 +203,26 @@ export function sortPosts(posts, sort) {
     return dir * a.newsDate.localeCompare(b.newsDate) || byAdded(a, b);
   });
 }
+
+export const BOARD_SORT_OPTIONS = [
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "name", label: "Name A–Z" },
+  { value: "size", label: "Most cuttings" },
+];
+
+/** Collections in the chosen order; `stats` supplies the cutting counts. */
+export function sortBoards(boards, sort, stats = {}) {
+  const created = (b) => b.createdAt?.toMillis?.() ?? Number.MAX_SAFE_INTEGER;
+  const byName = (a, b) =>
+    (a.name || "").localeCompare(b.name || "", "en", { numeric: true, sensitivity: "base" });
+  const rows = [...boards];
+  if (sort === "oldest") return rows.sort((a, b) => created(a) - created(b));
+  if (sort === "name") return rows.sort(byName);
+  if (sort === "size") {
+    return rows.sort(
+      (a, b) => (stats[b.id]?.count || 0) - (stats[a.id]?.count || 0) || byName(a, b)
+    );
+  }
+  return rows.sort((a, b) => created(b) - created(a));
+}
