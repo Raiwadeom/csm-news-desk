@@ -5,7 +5,8 @@ import SaveToBoardMenu from "./SaveToBoardMenu";
 import { Button } from "./ui";
 import { IconClose, IconDownload, IconTrash, IconFolder, IconEdit, IconCheck, Spinner } from "./Icons";
 import { useToast } from "./Toast";
-import { largeUrl, downloadImage } from "@/lib/images";
+import { downloadImage } from "@/lib/images";
+import ZoomableImage from "./ZoomableImage";
 import { formatNewsDate } from "@/lib/dates";
 import { updatePost } from "@/lib/store";
 import { lockBodyScroll } from "@/lib/scroll-lock";
@@ -30,10 +31,12 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const [savingTitle, setSavingTitle] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     setEditingDate(false);
     setEditingTitle(false);
+    setExpanded(false);
   }, [post?.id]);
 
   const isOpen = Boolean(post);
@@ -45,10 +48,15 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
 
   useEffect(() => {
     if (!isOpen) return;
-    const onKey = (e) => e.key === "Escape" && onClose();
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      // Escape leaves full screen first, then closes on the next press.
+      if (expanded) setExpanded(false);
+      else onClose();
+    };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, expanded]);
 
   if (!post) return null;
 
@@ -106,7 +114,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
   }
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-0 sm:p-6">
+    <div className={`fixed inset-0 z-[110] flex items-center justify-center p-0 ${expanded ? "" : "sm:p-6"}`}>
       <div
         className="animate-fade absolute inset-0 bg-black/75 backdrop-blur-sm"
         onClick={onClose}
@@ -117,7 +125,7 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/15 text-white backdrop-blur transition hover:bg-white/25 sm:right-5 sm:top-5"
+        className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-ink-900/75 text-white shadow-lg backdrop-blur transition hover:bg-ink-900/90 sm:right-5 sm:top-5"
       >
         <IconClose />
       </button>
@@ -126,18 +134,21 @@ export default function Lightbox({ post, boardsById, onClose, onDelete, readOnly
         role="dialog"
         aria-modal="true"
         aria-label={post.title || "Newspaper cutting"}
-        className="animate-sheet relative flex max-h-dvh w-full max-w-5xl flex-col overflow-hidden bg-white sm:max-h-[88dvh] sm:flex-row sm:rounded-lg sm:border sm:border-black/10 sm:shadow-2xl"
+        className={
+          expanded
+            ? "relative flex h-dvh w-full flex-col overflow-hidden bg-white"
+            : "animate-sheet relative flex max-h-dvh w-full max-w-5xl flex-col overflow-hidden bg-white sm:max-h-[88dvh] sm:flex-row sm:rounded-lg sm:border sm:border-black/10 sm:shadow-2xl"
+        }
       >
-        <div className="flex min-h-0 flex-1 items-center justify-center bg-black/[0.04] p-2 sm:p-5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={largeUrl(post.imageUrl)}
-            alt={post.title || "Newspaper cutting"}
-            className="max-h-[52dvh] w-auto max-w-full rounded-md border border-black/10 object-contain shadow-sm sm:max-h-[78dvh]"
-          />
-        </div>
+        <ZoomableImage
+          src={post.imageUrl}
+          alt={post.title || "Newspaper cutting"}
+          expanded={expanded}
+          onToggleExpand={() => setExpanded((v) => !v)}
+          imgClassName={expanded ? "max-h-full" : "max-h-[52dvh] sm:max-h-[78dvh]"}
+        />
 
-        <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-t border-black/6 p-5 pb-safe sm:w-80 sm:border-l sm:border-t-0 sm:pb-5">
+        <aside className={`${expanded ? "hidden" : "flex"} w-full shrink-0 flex-col gap-4 overflow-y-auto border-t border-black/6 p-5 pb-safe sm:w-80 sm:border-l sm:border-t-0 sm:pb-5`}>
           <div>
             {editingTitle ? (
               <form onSubmit={handleSaveTitle} className="flex items-center gap-1.5">

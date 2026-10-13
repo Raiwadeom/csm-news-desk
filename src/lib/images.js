@@ -23,6 +23,12 @@ export function largeUrl(url) {
   return withTransform(url, "f_auto,q_auto,w_1600,c_limit");
 }
 
+/** Sharper version swapped in once a reader zooms into a cutting. */
+export function zoomUrl(url) {
+  if (!url || !isCloudinary(url)) return url;
+  return withTransform(url, "f_auto,q_auto,w_3200,c_limit");
+}
+
 export function safeFileName(name) {
   const base = (name || "newspaper-clipping")
     .trim()
